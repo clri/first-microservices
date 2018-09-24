@@ -33,5 +33,45 @@ create table `social_information` (
 );
 
 
-grant all privileges on social_customers.* to 'microservice'@'localhost';
+/*Triggers for Waterline adapted from lecture 3 */
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `generate_uni`(last_name VARCHAR(32),
+    first_name VARCHAR(32)) RETURNS varchar(8) CHARSET utf8
+BEGIN
+
+    -- You have to/should declare variables before using
+    DECLARE        c1                CHAR(2);
+    DECLARE        c2                CHAR(2);
+    DECLARE        prefix            CHAR(6);
+    DECLARE        uniCount        INT;
+    DECLARE        newUni        VARCHAR(8);
+
+    SET c1         =        UPPER(SUBSTR(first_name, 1, 2));
+    SET c2        =        UPPER(SUBSTR(last_name, 1, 2));
+    SET prefix    =        CONCAT(c1, c2, "%");
+
+    SET uniCount = 0;
+    SELECT COUNT(customers_id) INTO uniCount FROM customers WHERE customers_id LIKE prefix;
+    SET newUni = CONCAT(c1, c2,uniCount+1);
+
+RETURN  newUni;
+END $$
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `customers_BEFORE_INSERT`
+    BEFORE INSERT ON `customers` FOR EACH ROW
+BEGIN
+    SET New.customers_id = LOWER(generate_uni(New.customers_lastname, New.customers_firstname));
+END $$
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `customers_BEFORE_UPDATE`
+    BEFORE UPDATE ON `customers` FOR EACH ROW
+BEGIN
+    SET New.customers_id = Old.customers_id;
+END $$
+
+DELIMITER ;
+
+
 /**/
