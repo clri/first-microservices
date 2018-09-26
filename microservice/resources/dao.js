@@ -293,7 +293,8 @@ let Dao = function(collection) {
     // This would push a custom query into the DB, but Waterline makes this really hard.
     //@TODO: do we need custom queries? look into this
     self.customQ = function(q) {
-       reject("Not implemented.");
+            throw "Not implemented.";
+       //reject("Not implemented.");
     };
 
 };
