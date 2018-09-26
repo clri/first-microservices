@@ -3,7 +3,7 @@ drop database if exists social_customers;
 drop user if exists 'microservice'@'localhost';
 
 create database social_customers;
-create user 'microservice'@'localhost'; -- identified by 'thePassword';
+create user 'microservice'@'localhost' identified by 'thePassword';
 use social_customers;
 
 /*below definition taken from lecture 1 slide*/

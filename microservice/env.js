@@ -12,7 +12,7 @@ let env = {
         host:  '127.0.0.1',
         port: 3306,
         adapter: 'db',
-        url: 'mysql://microservice:microservice@localhost:3306/social_customers'
+        url: 'mysql://microservice:thePassword@localhost:3306/social_customers'
     }
 };
 
