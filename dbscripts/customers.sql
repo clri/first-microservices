@@ -74,4 +74,6 @@ END $$
 DELIMITER ;
 
 
+grant all privileges on social_customers.* to 'microservice'@'localhost';
+
 /**/

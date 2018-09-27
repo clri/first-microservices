@@ -1,3 +1,7 @@
 *.swp
 *.log
 node_modules/
+*.DS_Store
+*customersbo.js
+*customersdo.js
+*testcustomer*.js
