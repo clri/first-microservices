@@ -9,7 +9,7 @@ const cdo =
 let theCdo = new cdo.CustomersDAO();
 
 const testA = function() {
-    theCdo.retrieveById('kamc1', ['lastName', 'email'], {tenant: 'tenant1'}).then(
+    theCdo.retrieveById('kamc1', ['lastName', 'email'], {tenant: 'E6156'}).then(
         function(result) {
             logging.debug_message("testA result = ", result);
         })
@@ -20,7 +20,7 @@ const testA = function() {
 };
 
 const testB = function() {
-    theCdo.retrieveByTemplate({firstName: "Jameela"}, null, {tenant: 'tenant1'}).then(
+    theCdo.retrieveByTemplate({firstName: "Jameela"}, null, {tenant: 'E6156'}).then(
         function(result) {
             logging.debug_message("testB result = ", result);
         })
@@ -46,7 +46,7 @@ const testD = function() {
     let tmp = { firstName: "Kate"}
     let fields = { status: "Pending"}
 
-    theCdo.update(tmp, fields, {tenant: 'tenant1'}).then(
+    theCdo.update(tmp, fields, {tenant: 'E6156'}).then(
         function(result) {
             logging.debug_message("testD result = ", result);
         })
@@ -60,7 +60,7 @@ const testE = function() {
 
     let tmp = { firstName: "Kate"}
 
-    theCdo.delete(tmp, {tenant: 'tenant1'}).then(
+    theCdo.delete(tmp, {tenant: 'E6156'}).then(
         function(result) {
             logging.debug_message("testE result = ", result);
         })
