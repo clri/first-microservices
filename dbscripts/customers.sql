@@ -32,6 +32,38 @@ create table `social_information` (
   CONSTRAINT FOREIGN KEY `customer_id`(`customer_id`) REFERENCES `customers`(`customers_id`)
 );
 
+create table `product` (
+  `product_id` int(10) NOT NULL AUTO_INCREMENT,
+  `product_name` varchar(128) NOT NULL,
+  `product_description` varchar(1024) NOT NULL,
+  `product_price` float NOT NULL,
+  `product_markdown` float NOT NULL,
+  `product_quantity_stocked` int NOT NULL,
+  `product_status` enum('ACTIVE', 'BACK_ORDER', 'DELETED') NOT NULL,
+  `product_created` bigint(20) NOT NULL,
+  `product_modified` bigint(20) NOT NULL,
+  `tenant_id` varchar(12) NOT NULL,
+  PRIMARY KEY (`product_id`)
+);
+
+/*for now, orders are only of one distinct product*/
+create table `orders` (
+  `orders_id` int(10) NOT NULL AUTO_INCREMENT,
+  `customers_id` varchar(12) NOT NULL,
+  `product_id` int(10) NOT NULL,
+  `orders_quantity` int(10) NOT NULL,
+  `orders_tax` float NOT NULL,
+  `orders_shipping` float NOT NULL,
+  `tenant_id` varchar(12) NOT NULL,
+  PRIMARY KEY (`orders_id`),
+  CONSTRAINT FOREIGN KEY `customers_id`(`customers_id`) REFERENCES `customers`(`customers_id`),
+  CONSTRAINT FOREIGN KEY `product_id`(`product_id`) REFERENCES `product`(`product_id`)
+);
+
+/*@TODO: add trigger on create/update for product such that product with 0 in
+  stock cannot be active, and with >0 in stock cannot be back_order, and that
+  quantity stocked/sold is not negative--put in business logic*/
+
 
 /*Triggers for Waterline adapted from lecture 3 */
 
