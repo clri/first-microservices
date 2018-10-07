@@ -20,6 +20,6 @@ insert into product values(2, 'coffee', 'one pound of arabica beans, dark roast'
 insert into product values(3, 'earl grey tea', 'made from fresh tea leaves, 5 boxes at 20 bags per box', 10.95, 0.05, 0, 'BACK_ORDER', 20180904100334, 20180904100334, 'E6156');
 
 -- orders
-insert into orders values(1, 'stbr1', 2, 3, 1.75, 0, 'E156');
-insert into orders values(2, 'masm1', 2, 2, 1.75, 10.29, 'E156');
-insert into orders values(3, 'jaja1', 3, 50, 1.75, 0, 'E156');
+insert into orders values(1, 'stbr1', 2, 3, 1.75, 0, 20180904100334, 'E156');
+insert into orders values(2, 'masm1', 2, 2, 1.75, 10.29, 20180904100334, 'E156');
+insert into orders values(3, 'jaja1', 3, 50, 1.75, 0, 20180904100334, 'E156');

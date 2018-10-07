@@ -54,6 +54,7 @@ create table `orders` (
   `orders_quantity` int(10) NOT NULL,
   `orders_tax` float NOT NULL,
   `orders_shipping` float NOT NULL,
+  `orders_created` bigint(20) NOT NULL,
   `tenant_id` varchar(12) NOT NULL,
   PRIMARY KEY (`orders_id`),
   CONSTRAINT FOREIGN KEY `customers_id`(`customers_id`) REFERENCES `customers`(`customers_id`),
