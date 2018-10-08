@@ -13,7 +13,7 @@ let return_codes = require('./return_codes');      // Application standardized R
 
 // Ad hoc approach to getting information based on running local, beanstalk, etc.
 // eb2_environment is the name of the environment variable.
-let environment_name = 'local'; //process.env.eb2_environment; @TODO: set this up
+let environment_name = process.env.eb2_environment; //'local'
 logging.debug_message("environment_name = ", environment_name);
 
 // Use the environment variable to get the information about DB conn based on environment.
