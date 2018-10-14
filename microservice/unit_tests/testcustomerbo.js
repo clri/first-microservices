@@ -41,4 +41,3 @@ let testB2 = function(d) {
 
 //testB1();
 testB2(test_create);
-

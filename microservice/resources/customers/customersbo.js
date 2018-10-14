@@ -169,7 +169,7 @@ exports.create = function(data, context) {
                     );
                 },
                 function (error) {
-                    logging.error_message(moduleName + functionName + "error = ", error);
+                    logging.error_message(moduleName + functionName + "Yerror = ", error);
                     reject(error);
                 }
             );

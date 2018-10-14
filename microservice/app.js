@@ -41,6 +41,8 @@ app.use('/', indexRouter);
 app.get('/customers/:id', customersRouter.get_by_id);
 app.get('/customers', customersRouter.get_by_query);
 app.post('/customers', customersRouter.post);
+app.post('/register', customersRouter.register);
+app.post('/login', customersRouter.login);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

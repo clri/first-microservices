@@ -6,7 +6,7 @@ let express = require('express');
 let logging = require('../lib/logging');
 let return_codes = require('../resources/return_codes');
 let bo = require('../resources/customers/customersbo');
-//let login_registration = require('../resources/customers/login_register_bo');
+let login_registration = require('../resources/customers/login_register_bo');
 
 let moduleName="customers.";
 
@@ -81,7 +81,7 @@ let register = function(req, res, next) {
     logging.debug_message(moduleName+functionName + "body  = ", data);
 
     //@TODO: put back in when you've added the login
-    /*login_registration.register(data, context).then(
+    login_registration.register(data, context).then(
         function(result) {
             if (result) {
                map_response(result, res);
@@ -94,7 +94,7 @@ let register = function(req, res, next) {
             logging.error_message(moduleName+functionName + " error = ", error);
             map_response(error, res);
         }
-);*/
+        );
 };
 
 let login = function(req, res, next) {
@@ -107,7 +107,7 @@ let login = function(req, res, next) {
     logging.debug_message(moduleName+functionName + "body  = ", data);
 
 //@TODO: put back in when you've added the login
-    /*login_registration.login(data, context).then(
+    login_registration.login(data, context).then(
         function(result) {
             if (result) {
                 map_response(result, res);
@@ -120,7 +120,7 @@ let login = function(req, res, next) {
             logging.error_message(moduleName+functionName + " error = ", error);
             map_response(error, res);
         }
-);*/
+);
 };
 
 let post = function(req, res, next) {
@@ -249,5 +249,5 @@ let get_by_query =  function(req, res, next) {
 exports.get_by_id = get_by_id;
 exports.get_by_query = get_by_query;
 exports.post = post;
-//exports.register = register;
-//exports.login = login;
+exports.register = register;
+exports.login = login;
