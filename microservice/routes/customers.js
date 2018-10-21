@@ -1,14 +1,11 @@
-//customers route, adapted from class slides
-//and later from customers-full.js
-
 let express = require('express');
-
 let logging = require('../lib/logging');
 let return_codes = require('../resources/return_codes');
-let bo = require('../resources/customers/customersbo');
-let login_registration = require('../resources/customers/login_register_bo');
+const hash = require('../lib/salthash');
+let security = require('../middleware/security');
+let customer_dao = require('../resources/customers/customer_dao');
 
-let moduleName="customers.";
+let moduleName = "customers.";
 
 
 let map_response = function(e, res) {
@@ -69,63 +66,92 @@ let map_response = function(e, res) {
 
 // This function and login should probably be in separate route handlers, but I am lazy.
 // You have probably noticed this by now.
-let register = function(req, res, next) {
-    let functionName="register:"
-
+let register = function(req, res, next, w_manager) {
+    let functionName = "register:"
     let data = req.body;
 
-    // I will explain the tenant stuff later.
-    let context = {tenant: req.tenant};
+    // by default, any new customer's account is unverified, so PENDING
+    data.status = "PENDING";
+    data.pw = hash.saltAndHash(data.pw);
+    logging.debug_message(moduleName + functionName + "body  = ", data);
 
-    logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
-    logging.debug_message(moduleName+functionName + "body  = ", data);
+    c_dao = new customer_dao.CustomerDAO(w_manager);
+    c_dao.create(data).then(
+        function(success) {
 
-    //@TODO: put back in when you've added the login
-    login_registration.register(data, context).then(
-        function(result) {
-            if (result) {
-               map_response(result, res);
-            }
-            else {
-                reject(return_codes.codes.internal_error);
-            }
+            // if succeeds, the success variable contains the created customer
+            let this_customer = success;
+
+            // console.log(this_customer);
+
+
+            let result = return_codes.codes.registration_success;
+            let claim = security.generate_customer_claims(this_customer, {tenant: "E6156"});
+            console.log("Returning register token = " + JSON.stringify(claim, null, 2));
+            result.token = claim;
+            result.resource = "customers";
+            result.id = this_customer.id;
+            return result;
         },
         function(error) {
-            logging.error_message(moduleName+functionName + " error = ", error);
-            map_response(error, res);
+            let result = return_codes.codes.internal_error;
+            return result;
         }
-        );
+    ).then(
+        function(result) {
+            map_response(result, res);
+            return result;
+        }
+    ).catch(function(exception) {
+        logging.debug_message("c_dao.create exception: ", exception);
+        res.status(500).json("c_dao.create exception: " + exception);
+    });
 };
 
-let login = function(req, res, next) {
-    let functionName="login:"
-
+let login = function(req, res, next, w_manager) {
+    let functionName = "login:"
     let data = req.body;
-    let context = {tenant: req.tenant};
+    logging.debug_message(moduleName + functionName + "body  = ", data);
 
-    logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
-    logging.debug_message(moduleName+functionName + "body  = ", data);
 
-//@TODO: put back in when you've added the login
-    login_registration.login(data, context).then(
-        function(result) {
-            if (result) {
-                map_response(result, res);
+    // get the DAO object for Customers table and retrieve customer's record by his/her email address
+    let c_dao = new customer_dao.CustomerDAO(w_manager);
+    let fields = ['*'];
+    let template = {email: data.email};
+    c_dao.retrieveByTemplate(template, fields).then(
+        function(success) {
+            let query_result = success;
+            
+            // if success, the object success contains the customer with this email-address
+            let this_customer = query_result[0];
+
+            // check if the customer is trying to login with the correct credentials
+            if(hash.compare(data.pw, this_customer.pw)) {
+                let claim = security.generate_customer_claims(this_customer, {tenant: "E6156"});
+                let result = return_codes.codes.login_success;
+                result.token = claim;
+                result.id = this_customer.id;
+
+                return result;
             }
             else {
-                reject(return_codes.codes.internal_error);
+                let result = return_codes.codes.login_failure;
+                return result;
             }
         },
         function(error) {
-            logging.error_message(moduleName+functionName + " error = ", error);
-            map_response(error, res);
+            return error;
         }
-);
+    ).then(
+        function(result) {
+            map_response(result, res);
+        }
+    );
 };
 
 let post = function(req, res, next) {
 
-    let functionName="post:"
+    let functionName = "post:"
 
     let data = req.body;
     let context = {tenant: req.tenant};
@@ -151,53 +177,24 @@ let post = function(req, res, next) {
 };
 
 
-let get_by_id = function(req, res, next) {
+let get_by_id = function(req, res, next, w_manager) {
 
+    let functionName = "get_by_id:"
+    logging.debug_message(moduleName + functionName + "params  = ", req.params);
+    let fields = ['*'];
+    let c_dao = new customer_dao.CustomerDAO(w_manager);
 
-    let functionName="get_by_id:"
-
-    logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
-    logging.debug_message(moduleName+functionName + "params  = ", req.params);
-
-    // Extract the tenant from the HTTP header.
-    let context = {tenant: req.tenant};
-    let fields = null;
-
-    try {
-        if (req.query && req.query.fields) {
-            fields = req.query.fields.split(',');
-            delete req.query.fields;
+    c_dao.retrieveById(req.params.id, fields).then(
+        function(success) {
+            res.status(200).json(success);
+        },
+        function(error) {
+            res.status(500).json("Unexpected error occured");
         }
-        else {
-            fields = ['*']
-        };
-
-        bo.retrieveById(req.params.id, fields, context).then(
-            function(result) {
-                //logging.debug_message("bo.retrieveById: result = ", result);
-                if (result) {
-                    res.status(200).json(result);
-                }
-                else {
-                    res.status(404).send("Not found!")
-                }
-            },
-            function(error) {
-                logging.debug_message("customers.get: error = " + error);
-                if (error.code && error.code == return_codes.codes.invalid_query.code) {
-                    res.status(400).send("You are a teapot.")
-                }
-                else {
-                    res.status(500).send("Internal error.");
-                }
-            }
-        );
-    }
-    catch( e) {
-      logging.error_message("e = " + e);
-      res.status(500).send("Boom!");
-    }
-
+    )
+    .catch(function(exception) {
+        res.status(500).json("Exception: " + exception);
+    });
 };
 
 let get_by_query =  function(req, res, next) {
