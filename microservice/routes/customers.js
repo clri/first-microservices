@@ -81,7 +81,7 @@ let register = function(req, res, next) {
     logging.debug_message(moduleName+functionName + "body  = ", data);
 
     //@TODO: put back in when you've added the login
-    login_registration.register(data, context).then(
+    login_registration.register(data, context, w_manager).then(
         function(result) {
             if (result) {
                map_response(result, res);
@@ -97,17 +97,16 @@ let register = function(req, res, next) {
         );
 };
 
-let login = function(req, res, next) {
-    let functionName="login:"
+let login = function(req, res, next, w_manager) {
+    let functionName = "login:"
 
     let data = req.body;
     let context = {tenant: req.tenant};
 
-    logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
-    logging.debug_message(moduleName+functionName + "body  = ", data);
+    logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
+    logging.debug_message(moduleName + functionName + "body  = ", data);
 
-//@TODO: put back in when you've added the login
-    login_registration.login(data, context).then(
+    login_registration.login(data, context, w_manager).then(
         function(result) {
             if (result) {
                 map_response(result, res);
@@ -151,13 +150,13 @@ let post = function(req, res, next) {
 };
 
 
-let get_by_id = function(req, res, next) {
+let get_by_id = function(req, res, next, w_manager) {
 
 
-    let functionName="get_by_id:"
+    let functionName = "get_by_id:"
 
-    logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
-    logging.debug_message(moduleName+functionName + "params  = ", req.params);
+    logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
+    logging.debug_message(moduleName + functionName + "params  = ", req.params);
 
     // Extract the tenant from the HTTP header.
     let context = {tenant: req.tenant};
@@ -172,9 +171,8 @@ let get_by_id = function(req, res, next) {
             fields = ['*']
         };
 
-        bo.retrieveById(req.params.id, fields, context).then(
+        bo.retrieveById(req.params.id, fields, context, w_manager).then(
             function(result) {
-                //logging.debug_message("bo.retrieveById: result = ", result);
                 if (result) {
                     res.status(200).json(result);
                 }
