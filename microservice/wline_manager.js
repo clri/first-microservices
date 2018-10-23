@@ -4,7 +4,7 @@ let logging = require('./lib/logging');
 let env = require('./env');
 let sleep = require('sleep');
 
-let db_info = env.getEnv("local");
+let db_info = env.getEnv("beanstalk");
 console.log(db_info);
 
 
@@ -15,15 +15,15 @@ let customers_configuration = {
     primaryKey: 'id',
 
     attributes: {
-        id: {type: 'string', required: true, columnName: 'id'},
-        user_last_name: {type: 'string', required: true, columnName: "lastname"},
-        user_first_name: {type: 'string', required: true, columnName: "firstname"},
-        email: {type: 'string', required: true, columnName: "email"},
-        status: {type: 'string', required: true, columnName: "status"},
-        pw: {type: 'string', required: true, columnName: "hashed_password"},
-        last_login: {type: 'number', required: true, columnName: "timestamp_last_login"},
-        created: {type: 'number', required: true, columnName: "timestamp_created"},
-        modified: {type: 'number', required: true, columnName: "timestamp_modified"},
+        id: {type: 'string', required: true, columnName: 'customers_id'},
+        user_last_name: {type: 'string', required: true, columnName: "customers_lastname"},
+        user_first_name: {type: 'string', required: true, columnName: "customers_firstname"},
+        email: {type: 'string', required: true, columnName: "customers_email"},
+        status: {type: 'string', required: true, columnName: "customers_status"},
+        pw: {type: 'string', required: true, columnName: "customers_password"},
+        last_login: {type: 'number', required: true, columnName: "customers_last_login"},
+        created: {type: 'number', required: true, columnName: "customers_created"},
+        modified: {type: 'number', required: true, columnName: "customers_modified"},
     }
 };
 
@@ -49,7 +49,7 @@ let singleton_manager = function() {
 	let self = this;
 	self.waterline = new Waterline();
 	self.ontology = null;
-	
+
 
 	this.initialize = function(callback) {
 		self.waterline.initialize(global_config, function (err, result) {
@@ -73,7 +73,7 @@ let singleton_manager = function() {
 
 	registerCollection(customers_configuration);
 
-	
+
 }
 
 exports.singleton_manager = singleton_manager;

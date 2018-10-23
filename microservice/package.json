@@ -14,9 +14,11 @@
     "jade": "~1.11.0",
     "jsonwebtoken": "^8.3.0",
     "morgan": "~1.9.0",
+    "password-hash": "^1.2.2",
     "sails": "^1.0.2",
     "sails-mysql": "^1.0.0",
     "serve-favicon": "^2.5.0",
+    "sleep": "^5.2.3",
     "waterline": "^0.13.5"
   }
 }

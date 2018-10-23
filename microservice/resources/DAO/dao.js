@@ -1,24 +1,23 @@
 let logging = require('../../lib/logging');
 
-// Metadata that defines the collection.
-let customers_configuration = {
+
+customers_configuration = {
     identity: 'customers',
     datastore: 'default',
     primaryKey: 'id',
 
     attributes: {
-        id: {type: 'string', required: true, columnName: 'id'},
-        user_last_name: {type: 'string', required: true, columnName: "lastname"},
-        user_first_name: {type: 'string', required: true, columnName: "firstname"},
-        email: {type: 'string', required: true, columnName: "email"},
-        status: {type: 'string', required: true, columnName: "status"},
-        pw: {type: 'string', required: true, columnName: "hashed_password"},
-        last_login: {type: 'number', required: true, columnName: "timestamp_last_login"},
-        created: {type: 'number', required: true, columnName: "timestamp_created"},
-        modified: {type: 'number', required: true, columnName: "timestamp_modified"},
+        id: {type: 'string', required: true, columnName: 'customers_id'},
+        user_last_name: {type: 'string', required: true, columnName: "customers_lastname"},
+        user_first_name: {type: 'string', required: true, columnName: "customers_firstname"},
+        email: {type: 'string', required: true, columnName: "customers_email"},
+        status: {type: 'string', required: true, columnName: "customers_status"},
+        pw: {type: 'string', required: true, columnName: "customers_password"},
+        last_login: {type: 'number', required: true, columnName: "customers_last_login"},
+        created: {type: 'number', required: true, columnName: "customers_created"},
+        modified: {type: 'number', required: true, columnName: "customers_modified"},
     }
 };
-
 // let Waterline = require('waterline');
 // let db_adaptor = require('sails-mysql');
 
