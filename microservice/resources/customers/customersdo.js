@@ -1,7 +1,5 @@
-
-
 let logging = require('../../lib/logging');
-let Dao = require('../dao');
+let DAO = require('../DAO/dao');
 let sandh = require('../../lib/salthash');
 
 
@@ -58,10 +56,10 @@ let convertFromDate = function(r) {
 };
 
 
-let CustomersDAO = function() {
+let CustomersDAO = function(wm) {
 
     // Make a DAO and initialize with the collection metadata.
-    this.theDao = new Dao.Dao(customersCollection);
+    this.theDao = new DAO.DAO(wm);
     let self = this;
 
     this.retrieveById = function(id,  fields, context) {
