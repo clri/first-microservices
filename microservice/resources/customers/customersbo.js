@@ -57,7 +57,7 @@ let validateUpdateData = function(data) {
 
 // Fields to return from queries from non-admins.
 // All of this needs to be in a reusable framework, otherwise I will repeat functions in every BO.
-let fields_to_return = ['id', 'lastName', 'firstName', 'email', 'last_login', 'created'];
+let fields_to_return = ['id', 'user_last_name', 'user_first_name', 'email', 'last_login', 'created', 'pw'];
 let filter_response_fields = function (result, context) {
 
     // We would ONLY filter return values if this is not an internal, admin request.
@@ -87,7 +87,7 @@ exports.retrieveById = function(id, fields, context, wm) {
 
         customersdo.retrieveById(id, fields, context, wm).then(
             function (result) {
-                //logging.debug_message(moduleName + functionName + "Result = ", result);
+                console.log(result);
                 result = filter_response_fields(result, context);
                 resolve(result);
             },
@@ -98,6 +98,28 @@ exports.retrieveById = function(id, fields, context, wm) {
         )
     });
 };
+
+
+exports.retrieveByEmail = function(email, fields, context, wm) {
+    let functionName = "retrieveByEmail";
+    let customersdo = new cdo.CustomersDAO(wm);
+
+    let the_context = context;  
+    return new Promise(function(resolve, reject) {
+        customersdo.retrieveByEmail(email, fields, context).then(
+            function(result) {
+                resolve(result);
+            },
+            function(error) {
+                logging.debug_message("customersbo.retrieveByEmail error: ", error);
+                reject(error);
+            }
+        ).catch(function(exc) {
+            logging.debug_message("customersbo.retrieveByEmail exception: ", exc);
+            reject(exc);
+        });
+    });
+}
 
 exports.retrieveByTemplate = function(template, fields, context, wm) {
     let functionName = "retrieveByTemplate";
@@ -131,7 +153,7 @@ exports.retrieveByTemplate = function(template, fields, context, wm) {
 
 exports.create = function(data, context, wm) {
     let functionName = "create";
-    let customersdo = new cdo.CustomersDAO(wm);
+    var customersdo = new cdo.CustomersDAO(wm);
     return new Promise(function (resolve, reject) {
 
         data.id = generateId(data.user_last_name, data.user_first_name);
@@ -169,18 +191,31 @@ exports.create = function(data, context, wm) {
     });
 };
 
-// //@TODO: business logic on delete
-// exports.delete = function(template, context) {
-//     return customersdo.delete(template, context);
 
-// };
+exports.updatePassword = function(cid, new_password, wm) {
+    let functionName = "create";
+    let customersdo = new cdo.CustomersDAO(wm);
 
-// //@TODO: business logic on update (what's allowed to update)
-// exports.update = function(template, fields, context) {
-//     if (validateUpdateData(data)) {
-//         return customersdo.delete(template, context);
-//     }
-//     else {
-//         Promise.reject(return_codes.codes.invalid_update_datainvalid_update);
-//     }
-// };
+    let template = {
+        where: {id: cid}
+    }
+
+    let updates = {
+        pw: new_password
+    }
+
+    return new Promise(function(resolve, reject) {
+        customersdo.update(template, updates).then(
+            function(success) {
+                resolve(success);
+            },
+            function(error) {
+                logging.debug_message("customersbo.update error: ", error);
+                reject(error);
+            }
+        ).catch(function(exc) {
+            logging.debug_message("customersbo.update exception: ", exc);
+        });
+    });
+    
+};

@@ -178,12 +178,20 @@ let DAO = function(w_manager) {
     self.getByQ = function(q, fields) {
         return new Promise(function (resolve, reject) {
             collection = self.w_manager.getCollection(customers_configuration.identity);
-            if(fields) {
-                resolve(collection.find({"where": q, "select": fields}));
+
+            try {
+                if(fields) {
+                    resolve(collection.find({"where": q, "select": fields}));
+                }
+                else {
+                    resolve(collection.find({"where": q}));
+                }    
             }
-            else {
-                resolve(collection.find({"where": q}));
+            catch(error) {
+                console.log(error);
+                reject(error);
             }
+            
         });
     };
 
@@ -191,7 +199,7 @@ let DAO = function(w_manager) {
         return new Promise(function(resolve, reject) {
             s =  self.configuration.primaryKey;
 
-            self.getByQ({[s]: id}).then(
+            self.getByQ({[s]: id}, fields).then(
                 function (result) {
                     if (result && result[0]) {
                         resolve(result[0])
@@ -213,25 +221,22 @@ let DAO = function(w_manager) {
         return new Promise(function(resolve, reject) {
             self.getByQ(template, fields).then(
                 function (result) {
-                    if (result) {
-                        resolve(result);
-                    }
-                    else {
-                        resolve([]);
-                    }
+                    resolve(result);
                 },
                 function (error) {
-                    logging.debug_message("Boom2 = " + error);
+                    logging.debug_message("DAO.retrieveByTemplate: error = " + error);
                     reject(error);
                 }
-            )
+            ).catch(function(exc) {
+                logging.debug_message("DAO.retrieveByTemplate: exception = " + exc);
+                reject(exc);
+            });
         });
     };
 
     self.create = function(data) {
         return new Promise(function(resolve, reject) {
             collection = self.w_manager.getCollection(customers_configuration.identity);
-            console.log(data);
             collection.create(data).fetch().then(
                 function(result) {
                     resolve(result);
@@ -242,6 +247,24 @@ let DAO = function(w_manager) {
                 }
             )
             .catch(function(exc) {
+                reject(exc);
+            });
+        });
+    };
+
+    self.update = function(template, updates) {
+        return new Promise(function (resolve, reject) {
+            let collection = self.w_manager.getCollection(customers_configuration.identity);
+            collection.update(template, updates).then(
+                function (result) {
+                    resolve(true);
+                },
+                function (error) {
+                    logging.error_message("dao.Dao.update: error = ", error);
+                    reject(error);
+                }
+            ).catch(function(exc) {
+                logging.error_message("dao.DAO.update: exception = ", exc);
                 reject(exc);
             });
         });

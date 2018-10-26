@@ -1,14 +1,15 @@
-//customers route, adapted from class slides
-//and later from customers-full.js
-
 let express = require('express');
-
 let logging = require('../lib/logging');
 let return_codes = require('../resources/return_codes');
 let bo = require('../resources/customers/customersbo');
 let login_registration = require('../resources/customers/login_register_bo');
+let _passreset = require('../resources/passreset/passreset');
+let mail = require('../mail');
+let crypto = require('crypto');
+let sandh = require('../lib/salthash');
 
-let moduleName="customers.";
+
+let moduleName = "customers.";
 
 
 let map_response = function(e, res) {
@@ -28,7 +29,7 @@ let map_response = function(e, res) {
             // POST is "creating" something. We will return
             // 201 -- created.
             // A link to the thing created. This should probably be in a links header..
-            e.resource="customers";
+            e.resource = "customers";
             let url = "/" + e.resource + "/" + e.id;
             let links = [];
             links.push({rel: "self", href: url});
@@ -49,9 +50,14 @@ let map_response = function(e, res) {
             let url = "/" + e.resource + "/" + e.id;
             let links = [];
             links.push({rel: "self", href: url});
-            let result = { msg: "Created", links: links };
+            let result = { msg: "LoggedIn", links: links };
             res.set("Authorization", e.token);
             res.status(201).json(result);
+            break;
+        }
+
+        case return_codes.codes.login_failure.code: {
+            res.status(403).json('Forbidden: Invalid credentials');
             break;
         }
 
@@ -108,25 +114,125 @@ let login = function(req, res, next, w_manager) {
 
     login_registration.login(data, context, w_manager).then(
         function(result) {
-            if (result) {
-                map_response(result, res);
+            map_response(result, res);
+        },
+        function(error) {
+            logging.error_message(moduleName + functionName + " error = ", error);
+            res.status(500).json(error);
+        }
+    ).catch(function(exc) {
+        logging.error_message(moduleName + functionName + " exception = ", exc);
+        res.status(500).json(exc);
+    });
+};
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+let passresetreq = function(req, res, next, w_manager, rclient) {
+    let functionName = "passresetreq:";
+    let data = req.body;
+    let context = {};
+
+    logging.debug_message(moduleName + functionName + "body = ", data);
+
+    let fields = ['*'];
+    bo.retrieveByEmail(data.user_email, fields, context, w_manager).then(
+        function(result) {
+            if(result.length > 0) {
+                result = result[0];
+                let sha = crypto.createHash('sha1');
+                let random_nonce = getRandomInt(Date.now());
+                let token = sha.update(result.email + random_nonce).digest('hex');
+                _passreset.insert_reset_token(rclient, token, result.id);
+                mail.sendPassResetEmail('localhost:3000/forgotpassword/' + token, result.email);
+                res.status(201).json("Password reset email sent");
             }
             else {
-                reject(return_codes.codes.internal_error);
+                res.status(201).json("Forbidden, because not a valid email")
             }
         },
         function(error) {
-            logging.error_message(moduleName+functionName + " error = ", error);
-            map_response(error, res);
+            logging.debug_message(moduleName + functionName + "error = ", error);
+            res.status(403).json("Error!");
         }
-);
+    ).catch(function(exc) {
+        logging.debug_message('passresetreq exception: ', exc);
+        res.status(403).json("Exception!");
+    }); 
 };
+
+let passreset = function(req, res, next, w_manager, rclient) {
+    let functionName = "passreset:";
+    let data = req.body;
+    let context = {};
+
+    logging.debug_message(moduleName + functionName + "body = ", data);
+    logging.debug_message(moduleName + functionName + "cookies = ", req.cookies);
+
+    _passreset.get_cid(rclient, req.cookies["reset_token"]).then(
+        function(cid) {
+            if(cid) {
+                let fields = ['*'];
+                let context = {};
+                bo.retrieveById(cid, fields, context, w_manager).then(
+                    function(c) {
+                        if(c) {
+                            let data = req.body;
+                            if(sandh.compare(data.new_password, c.pw)) {
+                                res.status(403).json('Forbidden: Can\'t use the old password');
+                            }
+                            else {
+                                bo.updatePassword(c.cid, data.new_password, w_manager).then(
+                                    function(success) {
+                                        _passreset.erase_reset_token(rclient, req.cookies["reset_token"]);
+                                        res.status(201).json("Password reset successfully!");
+                                    },
+                                    function(error) {
+                                        console.log("passreset -> bo.updatePassword error: ", error);
+                                        res.status(500).json("passreset -> bo.updatePassword error: ", error);
+                                    }
+                                ).catch(function(exc) {
+                                    console.log("passreset -> bo.updatePassword exception: ", exc);
+                                    res.status(500).json("passreset -> bo.updatePassword exception: ", exc);
+                                });        
+                            }
+                        } 
+                        else {
+                            console.log("Token-CID pair invalid. Get a new reset link");
+                            res.status(403).json("No CID for this token. Get a new reset link");
+                        }
+                    },
+                    function(error) {
+                        console.log("passreset error: ", error);
+                        res.status(500).json("passreset error: ", error);  
+                    }
+                ).catch(function(exc) {
+                    console.log("passreset exception: ", exc);
+                    res.status(500).json("passreset exception: ", exc);
+                });
+            }
+            else {
+                res.status(403).json("Invalid reset token. Get a new reset token");
+            }
+        },
+        function(error) {
+            console.log("passreset->getcid error: ", error);
+            res.status(500).json("_passreset.get_cid error");
+        }
+    ).catch(function(exc){
+        console.log("passreset->getcid exception: ", exc);
+        res.status(500).json("_passreset.get_cid exception");
+    });
+
+}
 
 let post = function(req, res, next) {
 
     let functionName="post:"
 
-    let data = req.body;
+    let data = req.body; 
     let context = {tenant: req.tenant};
 
     logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
@@ -136,8 +242,6 @@ let post = function(req, res, next) {
     bo.create(data, context).then(
         function(result) {
             if (result) {
-                // !!!!!!!
-                // Need to get ID to form URL.
                 res.status(201).json(result);
             }
         },
@@ -163,14 +267,8 @@ let get_by_id = function(req, res, next, w_manager) {
     let fields = null;
 
     try {
-        if (req.query && req.query.fields) {
-            fields = req.query.fields.split(',');
-            delete req.query.fields;
-        }
-        else {
-            fields = ['*']
-        };
 
+        fields = ['*']
         bo.retrieveById(req.params.id, fields, context, w_manager).then(
             function(result) {
                 if (result) {
@@ -220,7 +318,6 @@ let get_by_query =  function(req, res, next) {
 
         bo.retrieveByTemplate(req.query, fields, context).then(
             function (result) {
-                logging.debug_message("bo.retrieveById: result = ", result);
                 if (result) {
                     res.status(200).json(result);
                 }
@@ -229,12 +326,7 @@ let get_by_query =  function(req, res, next) {
                 }
             },
             function (error) {
-                if (error.code && error.code == return_codes.codes.invalid_query.code) {
-                    res.status(400).send("You are a teapot.")
-                }
-                else {
-                    res.status(500).send("Internal error.");
-                }
+                console.log(error);
             }
         );
     }
@@ -249,3 +341,5 @@ exports.get_by_query = get_by_query;
 exports.post = post;
 exports.register = register;
 exports.login = login;
+exports.passreset = passreset;
+exports.passresetreq = passresetreq;
