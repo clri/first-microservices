@@ -9,7 +9,9 @@ var logging = require('./lib/logging');
 
 var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
+var _passreset = require('./resources/passreset/passreset');
 var wline_manager = require('./wline_manager');
+var rc = require('./rclient.js');
 
 function setOntology(ontology) {
   w_manager.ontology = ontology;
@@ -18,6 +20,7 @@ function setOntology(ontology) {
 
 w_manager = new wline_manager.singleton_manager();
 w_manager.initialize(setOntology);
+var rclient = rc.init();
 
 var app = express();
 
@@ -53,6 +56,32 @@ app.post('/register', function(req, resp, next) {
 });
 app.post('/login', function(req, resp, next) {
   customersRouter.login(req, resp, next, w_manager);
+});
+
+app.post('/passresetreq', function(req, resp, next) {
+  customersRouter.passresetreq(req, resp, next, w_manager, rclient);
+});
+
+app.get('/forgotpassword/:reset_token', function(req, resp, next) {
+  _passreset.validateResetToken(rclient, req.params.reset_token).then(
+    function(success) {
+      if(success == true) {
+        resp.cookie("reset_token", req.params.reset_token).sendFile("forgotpassword.html", {root: "public/"});  
+      }
+      else {
+        resp.status(403).json("Forbidden: Invalid reset token.");    
+      }
+    },
+    function(error) {
+      resp.status(500).json("/forgotpassword/:reset_token error: ", error);
+    }
+  ).catch(function(exc) {
+    resp.status(500).json("/forgotpassword/:reset_token exception: ", exc);
+  });
+});
+
+app.post('/passreset', function(req, resp, next) {
+  customersRouter.passreset(req, resp, next, w_manager, rclient);
 });
 
 // catch 404 and forward to error handler

@@ -56,7 +56,7 @@ exports.login =  function(d, context, wm) {
                     resolve(result);
                 }
                 else {
-                    reject(return_codes.codes.login_failure);
+                    resolve(return_codes.codes.login_failure);
                 }
             },
             function(error) {
