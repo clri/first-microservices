@@ -5,6 +5,7 @@
 // NPM packages for Waterline and connection to MySQL
 let Waterline = require('waterline');
 let dbAdaptor = require('sails-mysql');
+let dynAdaptor = require('waterline-dynamodb')
 
 // Simple utility packages that I use.
 let logging = require('../lib/logging');         // Should replace with Winston or similar.
@@ -28,15 +29,26 @@ let ontology = null;
 // Waterline config
 let global_config = {
     adapters: {
-        'db': dbAdaptor
-    },
+        'db': dbAdaptor/*,
+        'dynamo': dynAdaptor*/
+        },
     datastores: {
         default: {
+            //adapter: dbAdaptor,
             host: db_info.host,
             port: db_info.port,
             adapter: 'db',
             url: db_info.url
-        }
+        }/*,
+        dynamo: {
+            adapter: 'waterline-dynamodb',
+            accessKeyId: 'yout accessKeyId',
+            secretAccessKey: 'your secretAccessKey',
+            region: 'your region',
+            endpoint: 'your endpoint',
+            readCapacity: 5,
+            writeCapacity: 5
+        }*/
     }
 };
 

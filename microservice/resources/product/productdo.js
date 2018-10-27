@@ -17,6 +17,7 @@ let productCollection = {
         price: {type: 'number', required: true, columnName: "product_price"},
         markdown: {type: 'number', required: true, columnName: 'product_markdown'},
         stocked: {type: 'number', required: true, columnName: 'product_quantity_stocked'},
+        url: {type: 'string', required: true, columnName: 'product_image_url'},
         status: {type: 'string', required: true, columnName: 'product_status'},
         created: {type: 'number', required: true, columnName: 'product_created'},
         modified: {type: 'number', required: true, columnName: 'product_modified'},

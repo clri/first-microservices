@@ -19,6 +19,7 @@
     "sails": "^1.0.2",
     "sails-mysql": "^1.0.0",
     "serve-favicon": "^2.5.0",
-    "waterline": "^0.13.5"
+    "waterline": "^0.13.5",
+    "waterline-dynamodb": "^0.1.6"
   }
 }
