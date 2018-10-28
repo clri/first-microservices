@@ -29,8 +29,8 @@ let ontology = null;
 // Waterline config
 let global_config = {
     adapters: {
-        'db': dbAdaptor/*,
-        'dynamo': dynAdaptor*/
+        'db': dbAdaptor,
+        'dynamo': dynAdaptor
         },
     datastores: {
         default: {
