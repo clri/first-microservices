@@ -1,23 +1,26 @@
 
 
 let logging = require('../../lib/logging');
-let Dao = require('../dao');
+//let Dao = require('../dao');
+let Dao = require('../dynamoDAO')
 
 
 // Metadata that defines the collection.
 let ordersCollection = {
-    identity: 'orders',
-    datastore: 'default',
-    primaryKey: 'id',
+    identity: 'E6156_orders',
+    datastore: 'dynamo',
+    primaryKey: 'customers_id', //actually the hash key
+    rangeKey: 'id',
 
     attributes: {
-        id: {type: 'number', required: true, columnName: 'orders_id'},
+        id: {type: 'string', required: true, columnName: 'id'},
         customer: {type: 'string', required: true, columnName: "customers_id"},
-        product: {type: 'number', required: true, columnName: "product_id"},
-        quantity: {type: 'number', required: true, columnName: "orders_quantity"},
-        tax: {type: 'number', required: true, columnName: 'orders_tax'},
-        shipping: {type: 'number', required: true, columnName: 'product_quantity_stocked'},
-        created: {type: 'number', required: true, columnName: 'product_created'},
+        /*product: {type: 'number', required: true, columnName: "product_id"},
+        quantity: {type: 'number', required: true, columnName: "orders_quantity"},*/
+        items: {type: 'json', required: true, columnName: 'orders_items'},
+        totalPrice: {type: 'number', required: true, columnName: 'orders_totalprice'},
+        //tax: {type: 'number', required: true, columnName: 'orders_tax'},
+        //shipping: {type: 'number', required: true, columnName: 'product_quantity_stocked'},
         tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
     }
 };
@@ -53,12 +56,13 @@ let OrdersDAO = function() {
 
         // This is where we introduce multi-tenancy for data access.
         // Convert and ID lookup to a template look up and add tenant_id from the context.
-        let template = {[ordersCollection.primaryKey]: id, "tenant_id": context.tenant};
+        //let template = {[ordersCollection.primaryKey]: id, "tenant_id": context.tenant};
 
-        return self.theDao.retrieveByTemplate(template, fields).then(
+        return self.theDao.retrieveByID(id, fields).then(
+        //return self.theDao.retrieveByTemplate(template, fields).then(
             function (result) {
                 result = convertToDate(result[0]);                  //  Need to convert numeric dates to Date();
-                //logging.debug_message("Result = ", result);
+                logging.debug_message("Result = ", result);
                 return result;
             }
         ).catch(function(error) {

@@ -13,10 +13,6 @@ dynogels.AWS.config.update(
           secretAccessKey: process.env.aws_secret_access_key,
           region: "us-east-1" });
 
-let makeCollection = function(c) {
-
-}
-
 
 // A collection is how Waterline says "Table."
 // We are registering the metadata on the table.
@@ -26,8 +22,6 @@ let registerCollection = function(c) {
     for (var attr in c.attributes) {
             var cname = c.attributes[attr]['columnName'];
             var ctype = c.attributes[attr]['type'];
-            //logging.debug_message(cname + " " + ctype);
-            //logging.debug_message(ctype == "string");
 
             //@TODO: make this control flow better, possibly add other cases
             if (ctype == "string") {
@@ -44,13 +38,13 @@ let registerCollection = function(c) {
     //logging.debug_message(c.identity);
     return dynogels.define(c.identity, {
            hashKey : c.primaryKey,
+           rangeKey : c.rangeKey,
            timestamps : true,
            schema : attrs,
            tableName : c.identity
    });
 
 };
-
 
 
 /*the key for dynamoDAO is that it has a common interface with the MySQL DAO
@@ -63,11 +57,21 @@ let DynDao = function(collection) {
 
     self.table = registerCollection(this.collection);
 
-    // Retrieve by a single column, primary key.
+    //helper function to convert column names
+    self.columnToColumn = function(data) {
+            var data2 = {}
+            for (var attr in data) {
+                    var cname = self.collection.attributes[attr]['columnName'];
+                    data2[cname] = data[attr];
+            }
+            return data2;
+    }
+
+    // Retrieve by a single column, primary (hash) key.
     self.retrieveById = function(id, fields) {
         return new Promise(function(resolve, reject) {
 
-            self.table.getAsync(id).then(
+            self.table.query(id).attributes(fields).loadAll().execAsync().then(
                 function(res) {
                     if (res) {
                         logging.debug_message("Dao.retrieve_by_id: noerror  = " + res);
@@ -84,83 +88,36 @@ let DynDao = function(collection) {
 
         });
     };
-/*
 
-    // @TODO: Add support for pagination!
-    //
+    // retrieveByTemplate: it's hard to chain filters together when we don't
+    // know how many there are, and we don't need to implement the business
+    // logic for a feature we don't need. Thus, we'll leave this in if only
+    // to throw an error.
     self.retrieveByTemplate = function(template, fields) {
-        s = self.collection.primaryKey;
-        return new Promise(function(resolve, reject) {
-            getByQ(self.collection.identity, template, fields).then(
-                function (result) {
-                    if (result) {
-                        resolve(result);
-                    }
-                    else {
-                        resolve([]);
-                    }
-                },
-                function (error) {
-                    logging.debug_message("Boom2 = " + error);
-                    reject(error);
-                }
-            )
-        });
+            throw "Not implemented.";
     };
 
-    //@TODO: test functionality
+    //we won't implement this yet either, unless we need to update orders
+    //(shipping address, payment method, etc is not handled in this db)
     self.update = function(template, updates) {
-
-        return new Promise(function (resolve, reject) {
-            getCollection(self.collection.identity).then(
-                function (result) {
-                    result.update(template, updates).then(
-                        function (result) {
-                            resolve(result);
-                        },
-                        function (error) {
-                            logging.error_message("dao.Dao.update: error = ", error);
-                            reject(error);
-                        });
-                },
-                function (error) {
-                    logging.error_message("dao.Dao.update: error = ", error);
-                    reject(error)
-                });
-        });
+            throw "Not implemented.";
     };
 
-    //@TODO: test functionality
+    //and we won't delete orders; we need the history
     self.delete = function(template) {
-        return new Promise(function (resolve, reject) {
-            getCollection(self.collection.identity).then(
-                function (result) {
-                    result.destroy(template).then(
-                        function (result) {
-                            resolve(result);
-                        },
-                        function (error) {
-                            logging.error_message("dao.Dao.delete: error = ", error);
-                            reject(error);
-                        });
-                },
-                function (error) {
-                    logging.error_message("dao.Dao.update: delete = ", error);
-                    reject(error)
-                });
-        });
-};*/
+            throw "Not implemented.";
+    };
 
-    //@TODO: test functionality
-    //return something so we can unit test it I guess?
+
     self.create = function(data) {
-        //@TODO: make sure all required attributes are there
+
         //map attributes to correct columns
-        data2 = {}
+        var data2 = self.columnToColumn(data);
+        /*{}
         for (var attr in data) {
                 var cname = self.collection.attributes[attr]['columnName'];
                 data2[cname] = data[attr];
-        }
+        }*/
         logging.debug_message(data2);
 
         return new Promise(function(resolve, reject) {
@@ -181,7 +138,6 @@ let DynDao = function(collection) {
     //@TODO: do we need custom queries? look into this
     self.customQ = function(q) {
             throw "Not implemented.";
-       //reject("Not implemented.");
     };
 
 };
