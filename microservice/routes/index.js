@@ -11,12 +11,4 @@ router.get('/home', function(req, res, next) {
   res.sendFile("home.html", {root: path.join(__dirname, "../public")});
 });
 
-router.get('/register', function(req, res, next) {
-	res.sendFile("register.html", { root: path.join(__dirname, "../public")});
-});
-
-router.get('/login', function(req, res, next) {
-	res.sendFile("login.html", { root: path.join(__dirname, "../public")});
-});
-
 module.exports = router;

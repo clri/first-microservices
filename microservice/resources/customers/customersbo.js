@@ -6,8 +6,6 @@
 
 // Initialize and get a copy of the DO to support this BO.
 const cdo = require('./customersdo');
-let customersdo = new cdo.CustomersDAO();
-
 let logging = require('../../lib/logging');
 let return_codes =  require('../return_codes');                     // Come standard return codes for the app.
 let moduleName = "customersbo.";                                    // Sort of used in logging messages.
@@ -17,12 +15,9 @@ let moduleName = "customersbo.";                                    // Sort of u
 //but that works with Waterline
 let generateId = function(lastName, firstName) {
 
-    throw "Unimplemented internal function generateID.";
-
     let p1 = firstName.substr(0,2);
     let p2 = lastName.substr(0,2);
-    let p3 = String(Math.floor(Math.random() * 100));
-    let newId = p1 + p2 + p3;
+    let newId = p1 + p2;
     return newId;
 };
 
@@ -62,7 +57,7 @@ let validateUpdateData = function(data) {
 
 // Fields to return from queries from non-admins.
 // All of this needs to be in a reusable framework, otherwise I will repeat functions in every BO.
-let fields_to_return = ['id', 'lastName', 'firstName', 'email', 'last_login', 'created'];
+let fields_to_return = ['id', 'user_last_name', 'user_first_name', 'email', 'last_login', 'created', 'pw'];
 let filter_response_fields = function (result, context) {
 
     // We would ONLY filter return values if this is not an internal, admin request.
@@ -84,14 +79,15 @@ let filter_response_fields = function (result, context) {
 
 
 // I did not do this as a JavaScript "class." No particular reason.
-exports.retrieveById = function(id, fields, context) {
+exports.retrieveById = function(id, fields, context, wm) {
     let functionName = "retrieveById:";
+    let customersdo = new cdo.CustomersDAO(wm);
 
     return new Promise(function (resolve, reject) {
 
-        customersdo.retrieveById(id, fields, context).then(
+        customersdo.retrieveById(id, fields, context, wm).then(
             function (result) {
-                //logging.debug_message(moduleName + functionName + "Result = ", result);
+                console.log(result);
                 result = filter_response_fields(result, context);
                 resolve(result);
             },
@@ -103,9 +99,31 @@ exports.retrieveById = function(id, fields, context) {
     });
 };
 
-exports.retrieveByTemplate = function(template, fields, context) {
-    let functionName = "retrieveByTemplate";
 
+exports.retrieveByEmail = function(email, fields, context, wm) {
+    let functionName = "retrieveByEmail";
+    let customersdo = new cdo.CustomersDAO(wm);
+
+    let the_context = context;  
+    return new Promise(function(resolve, reject) {
+        customersdo.retrieveByEmail(email, fields, context).then(
+            function(result) {
+                resolve(result);
+            },
+            function(error) {
+                logging.debug_message("customersbo.retrieveByEmail error: ", error);
+                reject(error);
+            }
+        ).catch(function(exc) {
+            logging.debug_message("customersbo.retrieveByEmail exception: ", exc);
+            reject(exc);
+        });
+    });
+}
+
+exports.retrieveByTemplate = function(template, fields, context, wm) {
+    let functionName = "retrieveByTemplate";
+    let customersdo = new cdo.CustomersDAO(wm);
 
     let the_context = context;
 
@@ -115,7 +133,7 @@ exports.retrieveByTemplate = function(template, fields, context) {
             reject(return_codes.codes.invalid_query);
         }
         else {
-            customersdo.retrieveByTemplate(template, fields, context).then(
+            customersdo.retrieveByTemplate(template, fields, context, wm).then(
                 function (result) {
                     //logging.debug_message(moduleName + functionName + "Result = ", result);
                     result = result.map(function(stuff) {
@@ -133,18 +151,13 @@ exports.retrieveByTemplate = function(template, fields, context) {
     });
 };
 
-exports.create = function(data, context) {
+exports.create = function(data, context, wm) {
     let functionName = "create";
-
+    var customersdo = new cdo.CustomersDAO(wm);
     return new Promise(function (resolve, reject) {
 
-        // Lucky guess?
-        // @TODO: fix ID generation
-        //data.id = generateId(data.lastName, data.firstName);
-        // This is going to get set in the database.
-        data.id = "XXXXX";
-
-        data.status = "PENDING"; // Until confirmation is always PENDING.
+        data.id = generateId(data.user_last_name, data.user_first_name);
+        data.status = "PENDING"; 
 
         let email = data.email;
 
@@ -152,14 +165,14 @@ exports.create = function(data, context) {
             reject(return_codes.codes.invalid_create_data);
         }
         else {
-            customersdo.create(data, context).then(
+            customersdo.create(data, context, wm).then(
                 function (result) {
                     //logging.debug_message(moduleName + functionName + "Result = ", result);
                     /*
                     This part is due to the fact that I cannot get Waterline to run custom queries.
                     Need to find the ID. Relying on the fact that the email is unique.
                      */
-                    exports.retrieveByTemplate({email: email}, null, context).then(
+                    exports.retrieveByTemplate({email: email}, null, context, wm).then(
                         function(result) {
                             resolve({id: result[0].id});
                         },
@@ -178,18 +191,31 @@ exports.create = function(data, context) {
     });
 };
 
-//@TODO: business logic on delete
-exports.delete = function(template, context) {
-    return customersdo.delete(template, context);
 
-};
+exports.updatePassword = function(cid, new_password, wm) {
+    let functionName = "create";
+    let customersdo = new cdo.CustomersDAO(wm);
 
-//@TODO: business logic on update (what's allowed to update)
-exports.update = function(template, fields, context) {
-    if (validateUpdateData(data)) {
-        return customersdo.delete(template, context);
+    let template = {
+        where: {id: cid}
     }
-    else {
-        Promise.reject(return_codes.codes.invalid_update_datainvalid_update);
+
+    let updates = {
+        pw: new_password
     }
+
+    return new Promise(function(resolve, reject) {
+        customersdo.update(template, updates).then(
+            function(success) {
+                resolve(success);
+            },
+            function(error) {
+                logging.debug_message("customersbo.update error: ", error);
+                reject(error);
+            }
+        ).catch(function(exc) {
+            logging.debug_message("customersbo.update exception: ", exc);
+        });
+    });
+    
 };

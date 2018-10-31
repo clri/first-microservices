@@ -18,7 +18,7 @@ let security = require('../../middleware/security');
 // Only does UID/Password right now.
 // TODO: Need to extend to support Facebook and other social media.
 //
-exports.login =  function(d, context) {
+exports.login =  function(d, context, wm) {
 
     // Incoming data contains security information.
     // Email.
@@ -38,7 +38,7 @@ exports.login =  function(d, context) {
 
 
     return new Promise(function(resolve, reject) {
-        cbo.retrieveByTemplate(template, fields, the_context).then(
+        cbo.retrieveByTemplate(template, fields, the_context, wm).then(
             function(c) {
                 // We found a customer. This was query, which returned an array. Get 1st element.
                 c = c[0];
@@ -56,7 +56,7 @@ exports.login =  function(d, context) {
                     resolve(result);
                 }
                 else {
-                    reject(return_codes.codes.login_failure);
+                    resolve(return_codes.codes.login_failure);
                 }
             },
             function(error) {
@@ -69,11 +69,12 @@ exports.login =  function(d, context) {
 };
 
 
-exports.register =  function(d, context) {
+exports.register =  function(d, context, wm) {
 
     d.status = "PENDING";
     return new Promise(function(resolve, reject) {
-        cbo.create(d, context).then(
+        console.log(wm);
+        cbo.create(d, context, wm).then(
             function(c) {
                 let new_result = return_codes.codes.registration_success;
                 let claim = security.generate_customer_claims(c, context);

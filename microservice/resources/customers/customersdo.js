@@ -1,7 +1,5 @@
-
-
 let logging = require('../../lib/logging');
-let Dao = require('../dao');
+let DAO = require('../DAO/dao');
 let sandh = require('../../lib/salthash');
 
 
@@ -58,10 +56,10 @@ let convertFromDate = function(r) {
 };
 
 
-let CustomersDAO = function() {
+let CustomersDAO = function(wm) {
 
     // Make a DAO and initialize with the collection metadata.
-    this.theDao = new Dao.Dao(customersCollection);
+    this.theDao = new DAO.DAO(wm);
     let self = this;
 
     this.retrieveById = function(id,  fields, context) {
@@ -73,12 +71,31 @@ let CustomersDAO = function() {
 
         return self.theDao.retrieveByTemplate(template, fields).then(
             function (result) {
-                result = convertToDate(result[0]);                  //  Need to convert numeric dates to Date();
-                //logging.debug_message("Result = ", result);
+                result = convertToDate(result[0]);
                 return result;
             }
         ).catch(function(error) {
             logging.debug_message("CustomersDAO.retrieveById: error = ", error);
+        });
+    };
+
+
+    this.retrieveByEmail = function(email, fields, context) {
+        let template = {["email"]: email};
+
+        return new Promise(function(resolve, reject) {
+            return self.theDao.retrieveByTemplate(template, fields).then(
+                function(result) {
+                    resolve(result);
+                },
+                function(error) {
+                    logging.debug_message("CustomersDAO.retrieveByEmail: error", error);
+                    reject(error);
+                }
+            ).catch(function(exc) {
+                logging.debug_message("CustomersDAO.retrieveByEmail: exception", exc);
+                reject(exc);
+            });
         });
     };
 
@@ -143,22 +160,14 @@ let CustomersDAO = function() {
         });
     };
 
-    // @TODO: Need to figure out how to handle return codes, e.g. not found.
-    // Will have to get row_count or do a findByTemplateFirst.
-    self.update = function(template, fields, context) {
+    self.update = function(template, updates, context) {
+
+        updates.pw = sandh.saltAndHash(updates.pw);
 
         return new Promise(function (resolve, reject) {
-            // Add tenant_id to template.
-
-            template.tenant_id = context.tenant;
-            template.status = {"!=": "DELETED"}
-
-            self.theDao.update(template, fields).then(
+            self.theDao.update(template, updates).then(
                 function (result) {
-                    if (result === undefined || result == null) {
-                        result = {}
-                    }
-                    resolve({});
+                    resolve(result);
                 },
                 function(error) {
                     logging.error_message("customersdo.update: Error = ", error);
@@ -172,8 +181,6 @@ let CustomersDAO = function() {
 
     };
 
-    // @TODO: Need to figure out how to handle return codes, e.g. not found.
-    // Will have to get row_count or do a findByTemplateFirst.
     self.delete = function(template, context) {
 
         return new Promise(function (resolve, reject) {
