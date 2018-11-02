@@ -9,6 +9,7 @@ const cdo = require('./customersdo');
 let logging = require('../../lib/logging');
 let return_codes =  require('../return_codes');                     // Come standard return codes for the app.
 let moduleName = "customersbo.";                                    // Sort of used in logging messages.
+let sandh = require('../../lib/salthash');
 
 
 //@TODO: implement generateID function that does not rely on triggers
@@ -57,7 +58,7 @@ let validateUpdateData = function(data) {
 
 // Fields to return from queries from non-admins.
 // All of this needs to be in a reusable framework, otherwise I will repeat functions in every BO.
-let fields_to_return = ['id', 'user_last_name', 'user_first_name', 'email', 'last_login', 'created', 'pw'];
+let fields_to_return = ['id', 'user_last_name', 'user_first_name', 'email', 'last_login', 'created', 'pw', 'status'];
 let filter_response_fields = function (result, context) {
 
     // We would ONLY filter return values if this is not an internal, admin request.
@@ -191,6 +192,33 @@ exports.create = function(data, context, wm) {
     });
 };
 
+exports.activateAccount = function(em, wm) {
+    let customersdo = new cdo.CustomersDAO(wm);
+    console.log(em);
+    let template = {
+        where: {email: em}
+    }
+
+    let updates = {
+        status: "ACTIVE"
+    }
+
+    return new Promise(function(resolve, reject) {
+        customersdo.update(template, updates).then(
+            function(success) {
+                console.log("Account activated successfully", em);
+                resolve(success);
+            },
+            function(error) {
+                console.log("customersbo.activateAccount error: ", error);
+                reject(error);
+            }
+        ).catch( function(exc) {
+            console.log("customersbo.activateAccount exception: ", exc);
+            reject(exc);
+        });
+    });
+}
 
 exports.updatePassword = function(cid, new_password, wm) {
     let functionName = "create";
@@ -199,9 +227,8 @@ exports.updatePassword = function(cid, new_password, wm) {
     let template = {
         where: {id: cid}
     }
-
     let updates = {
-        pw: new_password
+        pw: sandh.saltAndHash(new_password)
     }
 
     return new Promise(function(resolve, reject) {

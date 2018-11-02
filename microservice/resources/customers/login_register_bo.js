@@ -1,11 +1,12 @@
-
 const hash = require('../../lib/salthash');
 const cbo =  require('./customersbo');
-
+let crypto = require('crypto');
 
 
 let logging = require('../../lib/logging');
 let return_codes =  require('../return_codes');
+let email_activation = require('../activation/activation');
+let mail = require('../../mail');
 
 
 // We will discuss the concept of middleware later in this lecture.
@@ -64,12 +65,18 @@ exports.login =  function(d, context, wm) {
                 logging.error_message("logonbo.login: error = " + error);
                 reject(return_codes.codes.internal_error);
             }
-        )
+        ).catch(function(exc) {
+            logging.error_message("loginbo.login: exception = ", exc);
+            reject(return_codes.codes.internal_error);  
+        });
     });
 };
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
 
-exports.register =  function(d, context, wm) {
+exports.register =  function(d, context, wm, rclient) {
 
     d.status = "PENDING";
     return new Promise(function(resolve, reject) {
@@ -82,6 +89,16 @@ exports.register =  function(d, context, wm) {
                 new_result.token = claim;
                 new_result.resource = "customers";
                 new_result.id = c.id;
+
+                // add the logic to generate an activation link here
+                let random_nonce = getRandomInt(Date.now());
+                let sha = crypto.createHash('sha1');
+                let activation_token = sha.update(d.email + random_nonce).digest('hex');
+                new_result.activation_token = activation_token;
+
+                // insert this (token, cid) pair in the data store 1
+                email_activation.insert_activation_token(rclient, activation_token, d.email);
+                mail.sendActivationEmail('localhost:3000/activateEmail/' + activation_token, d.email);
                 resolve(new_result);
             },
             function(error) {

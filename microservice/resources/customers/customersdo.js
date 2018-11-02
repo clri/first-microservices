@@ -161,9 +161,6 @@ let CustomersDAO = function(wm) {
     };
 
     self.update = function(template, updates, context) {
-
-        updates.pw = sandh.saltAndHash(updates.pw);
-
         return new Promise(function (resolve, reject) {
             self.theDao.update(template, updates).then(
                 function (result) {

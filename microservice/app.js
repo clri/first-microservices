@@ -10,6 +10,7 @@ var logging = require('./lib/logging');
 var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
 var _passreset = require('./resources/passreset/passreset');
+var email_activation = require('./resources/activation/activation');
 var wline_manager = require('./wline_manager');
 var rc = require('./rclient.js');
 
@@ -20,7 +21,8 @@ function setOntology(ontology) {
 
 w_manager = new wline_manager.singleton_manager();
 w_manager.initialize(setOntology);
-var rclient = rc.init();
+var rclient0 = rc.init0();
+var rclient1 = rc.init1();
 
 var app = express();
 
@@ -52,18 +54,18 @@ app.get('/customers/:id', function(req, resp, next) {
 app.get('/customers', customersRouter.get_by_query);
 app.post('/customers', customersRouter.post);
 app.post('/register', function(req, resp, next) {
-  customersRouter.register(req, resp, next, w_manager);
+  customersRouter.register(req, resp, next, w_manager, rclient1);
 });
 app.post('/login', function(req, resp, next) {
-  customersRouter.login(req, resp, next, w_manager);
+  customersRouter.login(req, resp, next, w_manager); 
 });
 
 app.post('/passresetreq', function(req, resp, next) {
-  customersRouter.passresetreq(req, resp, next, w_manager, rclient);
+  customersRouter.passresetreq(req, resp, next, w_manager, rclient0);
 });
 
 app.get('/forgotpassword/:reset_token', function(req, resp, next) {
-  _passreset.validateResetToken(rclient, req.params.reset_token).then(
+  _passreset.validateResetToken(rclient0, req.params.reset_token).then(
     function(success) {
       if(success == true) {
         resp.cookie("reset_token", req.params.reset_token).sendFile("forgotpassword.html", {root: "public/"});  
@@ -80,8 +82,36 @@ app.get('/forgotpassword/:reset_token', function(req, resp, next) {
   });
 });
 
+app.get('/activateEmail/:activation_token', function(req, resp, next) {
+  console.log("Activation token: ", req.params.activation_token);
+  email_activation.validateActivationToken(rclient1, req.params.activation_token).then(
+    function(success) {
+      if(success == true) {
+        customersRouter.activate_account(req, resp, next, w_manager, rclient1).then(
+          function(success) {
+            resp.status(200).json(success);
+          },
+          function(error) {
+            resp.status(500).json(error);
+          }
+        ).catch(function(exc){
+          resp.status(500).json(exc);  
+        });
+      }
+      else {
+        resp.status(403).json("Forbidden: Invalid Activation Token");
+      }
+    },
+    function(error) {
+      resp.status(500).json("/activateEmail/:activation_token error: " + error);
+    }
+  ).catch(function(exc) {
+    resp.status(500).json("/activateEmail/:activation_token exception: " + exc);
+  });
+});
+
 app.post('/passreset', function(req, resp, next) {
-  customersRouter.passreset(req, resp, next, w_manager, rclient);
+  customersRouter.passreset(req, resp, next, w_manager, rclient0);
 });
 
 // catch 404 and forward to error handler

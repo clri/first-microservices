@@ -7,6 +7,7 @@ let _passreset = require('../resources/passreset/passreset');
 let mail = require('../mail');
 let crypto = require('crypto');
 let sandh = require('../lib/salthash');
+let email_activation = require('../resources/activation/activation');
 
 
 let moduleName = "customers.";
@@ -75,7 +76,7 @@ let map_response = function(e, res) {
 
 // This function and login should probably be in separate route handlers, but I am lazy.
 // You have probably noticed this by now.
-let register = function(req, res, next) {
+let register = function(req, res, next, w_manager, rclient) {
     let functionName="register:"
 
     let data = req.body;
@@ -87,7 +88,7 @@ let register = function(req, res, next) {
     logging.debug_message(moduleName+functionName + "body  = ", data);
 
     //@TODO: put back in when you've added the login
-    login_registration.register(data, context, w_manager).then(
+    login_registration.register(data, context, w_manager, rclient).then(
         function(result) {
             if (result) {
                map_response(result, res);
@@ -228,6 +229,33 @@ let passreset = function(req, res, next, w_manager, rclient) {
 
 }
 
+let activate_account = function(req, res, next, wm, rclient) {
+    return new Promise(function(resolve, reject) {
+        email_activation.get_email(rclient, req.params.activation_token).then(
+            function(email) {
+                 bo.activateAccount(email, wm).then(
+                    function(success) {
+                        resolve("Your account has been activated");
+                    },
+                    function(error) {
+                        reject(error);
+                    }
+                )
+                .catch(function(exc) {
+                    reject(exc);
+                });
+                
+            },
+            function(error) {
+                logging.error_message("customers.activate_account error: ", error);
+                reject(error);
+            }
+        ).catch(function(exc) {
+            logging.error_message("customers.activate_account exception: ", exc)
+        });
+    });
+}
+
 let post = function(req, res, next) {
 
     let functionName="post:"
@@ -343,3 +371,4 @@ exports.register = register;
 exports.login = login;
 exports.passreset = passreset;
 exports.passresetreq = passresetreq;
+exports.activate_account = activate_account;
