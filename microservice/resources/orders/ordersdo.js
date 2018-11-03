@@ -22,28 +22,10 @@ let ordersCollection = {
         //tax: {type: 'number', required: true, columnName: 'orders_tax'},
         //shipping: {type: 'number', required: true, columnName: 'product_quantity_stocked'},
         tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
+        //created: autotimestameped by dynamo
     }
 };
 
-// This kind of stinks. Waterline does not support TIMESTAMP and other MySQL data types.
-let convertToDate = function(r) {
-    if (r != null) {
-        if (r.created) {
-            r.created = new Date(r.created);
-        };
-    };
-    return r;
-};
-
-// This kind of stinks. Waterline does not support TIMESTAMP and other MySQL data types.
-let convertFromDate = function(r) {
-    if (r != null) {
-        if (r.created) {
-            r.create = r.created.getTime();
-        };
-    }
-    return r;
-};
 
 
 let OrdersDAO = function() {
@@ -52,39 +34,55 @@ let OrdersDAO = function() {
     this.theDao = new Dao.Dao(ordersCollection);
     let self = this;
 
-    this.retrieveById = function(id,  fields, context) {
+    //column conversions, for dynamo
+    self.columnToColumn2 = function(data) {
+            var data2 = {}
+            for (var attr in ordersCollection.attributes) {
+                    if (data.hasOwnProperty(attr['columnName'])) {
+                            data2[attr] = attr['columnName'];
+                    }
+            }
+            if (data.hasOwnProperty('createdAt')) {
+                    data2['created'] = data['createdAt']
+            }
+            return data2;
+    }
 
-        // This is where we introduce multi-tenancy for data access.
-        // Convert and ID lookup to a template look up and add tenant_id from the context.
-        //let template = {[ordersCollection.primaryKey]: id, "tenant_id": context.tenant};
+    self.fieldToField = function(fields) {
+            var fields2 = []
+            for (var field in ordersCollection.attributes) {
+                    if (fields.includes(field)) {
+                            fields2.push(ordersCollection.attributes[field]['columnName'])
+                    }
+            }
+            logging.debug_message(fields2)
+            return fields2;
+    }
 
-        return self.theDao.retrieveByID(id, fields).then(
+    this.retrieveById = function(id, fields, context) {
+        // This is where we introduce multi-tenancy for data access.\
+        self.fieldToField(fields);
+        return self.theDao.retrieveById(id, self.fieldToField(fields)).then(
         //return self.theDao.retrieveByTemplate(template, fields).then(
             function (result) {
-                result = convertToDate(result[0]);                  //  Need to convert numeric dates to Date();
+                //@TODO: filter result for tenant
+                var res2 = []
+                for (var itm in result['Items']) {
+                        if(context.tenant == itm['tenant_id'] ) {
+                                res2.push(itm)
+                        }
+                }
                 logging.debug_message("Result = ", result);
-                return result;
+                return self.columnToColumn2(res2); //result;
             }
         ).catch(function(error) {
             logging.debug_message("OrdersDAO.retrieveById: error = ", error);
         });
     };
 
-    // Basically the same logic.
+    // not useful for our business logic
     this.retrieveByTemplate = function(tmpl, fields, context) {
-
-        // Add tenant_id to template.
-        tmpl.tenant_id = context.tenant;
-
-
-        return self.theDao.retrieveByTemplate(tmpl, fields).then(
-            function(result) {
-                result = result.map(convertToDate);
-                return result;
-            }
-        ).catch(function(error) {
-            logging.debug_message("OrdersDAO.retrieveByTemplate: error = ", error);
-        });
+            throw "Not implemented";
     };
 
     this.create = function(data, context) {
@@ -92,14 +90,6 @@ let OrdersDAO = function() {
         return new Promise(function (resolve, reject) {
             // Add tenant_id to template.
             data.tenant_id = context.tenant;
-
-            // Need to do two things here.
-            // 1. Convert JavaScript dates to timestamps.
-            // 2. Hash/Salt the password.
-
-            // Set created and modified.
-            data.created = new Date();
-            data = convertToDate(data);
 
             self.theDao.create(data).then(
                 function (result) {
@@ -119,59 +109,14 @@ let OrdersDAO = function() {
         });
     };
 
-    // @TODO: Need to figure out how to handle return codes, e.g. not found.
-    // Will have to get row_count or do a findByTemplateFirst.
+    // not necessary
     self.update = function(template, fields, context) {
-
-        return new Promise(function (resolve, reject) {
-            // Add tenant_id to template.
-
-            template.tenant_id = context.tenant;
-
-            self.theDao.update(template, fields).then(
-                function (result) {
-                    if (result === undefined || result == null) {
-                        result = {}
-                    }
-                    resolve({});
-                },
-                function(error) {
-                    logging.error_message("ordersdo.update: Error = ", error);
-                    reject(error);
-                })
-                .catch(function(exc) {
-                    logging.error_message("ordersdo.update: Exception = " + exc);
-                    reject(exc);
-                });
-        });
-
+             throw "Not implemented";
     };
 
-    // @TODO: Need to figure out how to handle return codes, e.g. not found.
-    // Will have to get row_count or do a findByTemplateFirst.
+    // not necessary
     self.delete = function(template, context) {
-
-        return new Promise(function (resolve, reject) {
-            // Add tenant_id to template.
-            template.tenant_id = context.tenant;
-
-            self.update(template, data, context).then(
-                function (result) {
-                    if (result === undefined || result == null) {
-                        result = {}
-                    }
-                    resolve({})
-                },
-                function(error) {
-                    logging.error_message("ordersdo.delete: Error = ", error);
-                    reject(error);
-                })
-                .catch(function(exc) {
-                    logging.error_message("ordersdo.delete: Exception = " + exc);
-                    reject(exc);
-                });
-        });
-
+             throw "Not implemented";
     };
 
 }
