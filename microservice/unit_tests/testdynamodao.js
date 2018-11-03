@@ -3,7 +3,7 @@
  */
 
 const logging = require('../lib/logging');
-const Dao = require('../resources/dynamodao');
+const Dao = require('../resources/DAO/dynamodao');
 
 // Metadata that defines the collection.
 let ordersCollection = {

@@ -8,7 +8,7 @@ const cbo = require('../resources/customers/customersbo');
 let context = { tenant: "E6156"};
 
 let testB1 = function() {
-    cbo.retrieveById('df1', ['lastName', 'firstName', 'email'], context).then(
+    cbo.retrieveById('dd1', ['lastName', 'firstName', 'email'], context).then(
         function(result) {
             logging.debug_message("result = ", result);
         })
@@ -22,7 +22,7 @@ let testB1 = function() {
 let test_create = {
     lastName: "Luis",
     firstName: 'Suarez',
-    email: 'luis@fcp.es',
+    email: 'luiss@fcp.es',
     status: 'PENDING',
     pw: "cool"
 };
@@ -39,5 +39,5 @@ let testB2 = function(d) {
         );
 };
 
-//testB1();
-testB2(test_create);
+testB1();
+//testB2(test_create);
