@@ -47,10 +47,6 @@ create table `product` (
   PRIMARY KEY (`product_id`)
 );
 
-/*@TODO: add trigger on create/update for product such that product with 0 in
-  stock cannot be active, and with >0 in stock cannot be back_order, and that
-  quantity stocked/sold is not negative--put in business logic*/
-
 
 /*Triggers for Waterline adapted from lecture 3 */
 
