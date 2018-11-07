@@ -11,7 +11,7 @@ var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
 var _passreset = require('./resources/passreset/passreset');
 var email_activation = require('./resources/activation/activation');
-var wline_manager = require('./wline_manager');
+//var wline_manager = require('./wline_manager');
 var rc = require('./rclient.js');
 
 /*function setOntology(ontology) {
