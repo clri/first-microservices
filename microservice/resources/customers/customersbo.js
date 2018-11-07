@@ -80,20 +80,20 @@ let filter_response_fields = function (result, context) {
 
 
 // I did not do this as a JavaScript "class." No particular reason.
-exports.retrieveById = function(id, fields, context, wm) {
+exports.retrieveById = function(id, fields, context) {
     let functionName = "retrieveById:";
-    let customersdo = new cdo.CustomersDAO(wm);
+    let customersdo = new cdo.CustomersDAO();
 
     return new Promise(function (resolve, reject) {
 
-        customersdo.retrieveById(id, fields, context, wm).then(
+        customersdo.retrieveById(id, fields, context).then(
             function (result) {
                 console.log(result);
                 result = filter_response_fields(result, context);
                 resolve(result);
             },
             function (error) {
-                logging.error_message(moduleName + functionName + "error = ", error);
+                logging.error_message(moduleName + functionName + "jerrorn = ", error);
                 reject(return_codes.codes.internal_error);
             }
         )
@@ -101,11 +101,11 @@ exports.retrieveById = function(id, fields, context, wm) {
 };
 
 
-exports.retrieveByEmail = function(email, fields, context, wm) {
+exports.retrieveByEmail = function(email, fields, context) {
     let functionName = "retrieveByEmail";
-    let customersdo = new cdo.CustomersDAO(wm);
+    let customersdo = new cdo.CustomersDAO();
 
-    let the_context = context;  
+    let the_context = context;
     return new Promise(function(resolve, reject) {
         customersdo.retrieveByEmail(email, fields, context).then(
             function(result) {
@@ -122,9 +122,9 @@ exports.retrieveByEmail = function(email, fields, context, wm) {
     });
 }
 
-exports.retrieveByTemplate = function(template, fields, context, wm) {
+exports.retrieveByTemplate = function(template, fields, context) {
     let functionName = "retrieveByTemplate";
-    let customersdo = new cdo.CustomersDAO(wm);
+    let customersdo = new cdo.CustomersDAO();
 
     let the_context = context;
 
@@ -134,7 +134,7 @@ exports.retrieveByTemplate = function(template, fields, context, wm) {
             reject(return_codes.codes.invalid_query);
         }
         else {
-            customersdo.retrieveByTemplate(template, fields, context, wm).then(
+            customersdo.retrieveByTemplate(template, fields, context).then(
                 function (result) {
                     //logging.debug_message(moduleName + functionName + "Result = ", result);
                     result = result.map(function(stuff) {
@@ -152,13 +152,13 @@ exports.retrieveByTemplate = function(template, fields, context, wm) {
     });
 };
 
-exports.create = function(data, context, wm) {
+exports.create = function(data, context) {
     let functionName = "create";
-    var customersdo = new cdo.CustomersDAO(wm);
+    var customersdo = new cdo.CustomersDAO();
     return new Promise(function (resolve, reject) {
 
         data.id = generateId(data.user_last_name, data.user_first_name);
-        data.status = "PENDING"; 
+        data.status = "PENDING";
 
         let email = data.email;
 
@@ -166,14 +166,14 @@ exports.create = function(data, context, wm) {
             reject(return_codes.codes.invalid_create_data);
         }
         else {
-            customersdo.create(data, context, wm).then(
+            customersdo.create(data, context).then(
                 function (result) {
                     //logging.debug_message(moduleName + functionName + "Result = ", result);
                     /*
                     This part is due to the fact that I cannot get Waterline to run custom queries.
                     Need to find the ID. Relying on the fact that the email is unique.
                      */
-                    exports.retrieveByTemplate({email: email}, null, context, wm).then(
+                    exports.retrieveByTemplate({email: email}, null, context).then(
                         function(result) {
                             resolve({id: result[0].id});
                         },
@@ -192,8 +192,8 @@ exports.create = function(data, context, wm) {
     });
 };
 
-exports.activateAccount = function(em, wm) {
-    let customersdo = new cdo.CustomersDAO(wm);
+exports.activateAccount = function(em) {
+    let customersdo = new cdo.CustomersDAO();
     console.log(em);
     let template = {
         where: {email: em}
@@ -220,9 +220,9 @@ exports.activateAccount = function(em, wm) {
     });
 }
 
-exports.updatePassword = function(cid, new_password, wm) {
+exports.updatePassword = function(cid, new_password) {
     let functionName = "create";
-    let customersdo = new cdo.CustomersDAO(wm);
+    let customersdo = new cdo.CustomersDAO();
 
     let template = {
         where: {id: cid}
@@ -244,5 +244,5 @@ exports.updatePassword = function(cid, new_password, wm) {
             logging.debug_message("customersbo.update exception: ", exc);
         });
     });
-    
+
 };

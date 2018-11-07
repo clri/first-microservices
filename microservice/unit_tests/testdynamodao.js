@@ -21,7 +21,7 @@ let ordersCollection = {
     }
 };
 
-let testDao = new Dao.Dao(ordersCollection);
+let testDao = new Dao.DynDao(ordersCollection);
 
 //retrieve all fields by cust ID
 const test1 = function() {

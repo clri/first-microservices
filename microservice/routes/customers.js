@@ -1,7 +1,7 @@
 let express = require('express');
 let logging = require('../lib/logging');
 let return_codes = require('../resources/return_codes');
-let bo = require('../resources/customers/customersbo');
+let cbo = require('../resources/customers/customersbo');
 let login_registration = require('../resources/customers/login_register_bo');
 let _passreset = require('../resources/passreset/passreset');
 let mail = require('../mail');
@@ -76,7 +76,8 @@ let map_response = function(e, res) {
 
 // This function and login should probably be in separate route handlers, but I am lazy.
 // You have probably noticed this by now.
-let register = function(req, res, next, w_manager, rclient) {
+//let register = function(req, res, next, w_manager, rclient) {
+let register = function(req, res, next, rclient) {
     let functionName="register:"
 
     let data = req.body;
@@ -88,7 +89,8 @@ let register = function(req, res, next, w_manager, rclient) {
     logging.debug_message(moduleName+functionName + "body  = ", data);
 
     //@TODO: put back in when you've added the login
-    login_registration.register(data, context, w_manager, rclient).then(
+    //login_registration.register(data, context, w_manager, rclient).then(
+    login_registration.register(data, context, rclient).then(
         function(result) {
             if (result) {
                map_response(result, res);
@@ -104,7 +106,8 @@ let register = function(req, res, next, w_manager, rclient) {
         );
 };
 
-let login = function(req, res, next, w_manager) {
+//let login = function(req, res, next, w_manager) {
+let login = function(req, res, next) {
     let functionName = "login:"
 
     let data = req.body;
@@ -113,7 +116,8 @@ let login = function(req, res, next, w_manager) {
     logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
     logging.debug_message(moduleName + functionName + "body  = ", data);
 
-    login_registration.login(data, context, w_manager).then(
+    //login_registration.login(data, context, w_manager).then(
+    login_registration.login(data, context).then(
         function(result) {
             map_response(result, res);
         },
@@ -131,7 +135,8 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-let passresetreq = function(req, res, next, w_manager, rclient) {
+//let passresetreq = function(req, res, next, w_manager, rclient) {
+let passresetreq = function(req, res, next, rclient) {
     let functionName = "passresetreq:";
     let data = req.body;
     let context = {};
@@ -139,7 +144,8 @@ let passresetreq = function(req, res, next, w_manager, rclient) {
     logging.debug_message(moduleName + functionName + "body = ", data);
 
     let fields = ['*'];
-    bo.retrieveByEmail(data.user_email, fields, context, w_manager).then(
+    //cbo.retrieveByEmail(data.user_email, fields, context, w_manager).then(
+    cbo.retrieveByEmail(data.user_email, fields, context).then(
         function(result) {
             if(result.length > 0) {
                 result = result[0];
@@ -161,10 +167,11 @@ let passresetreq = function(req, res, next, w_manager, rclient) {
     ).catch(function(exc) {
         logging.debug_message('passresetreq exception: ', exc);
         res.status(403).json("Exception!");
-    }); 
+    });
 };
 
-let passreset = function(req, res, next, w_manager, rclient) {
+//let passreset = function(req, res, next, w_manager, rclient) {
+let passreset = function(req, res, next, rclient) {
     let functionName = "passreset:";
     let data = req.body;
     let context = {};
@@ -177,7 +184,8 @@ let passreset = function(req, res, next, w_manager, rclient) {
             if(cid) {
                 let fields = ['*'];
                 let context = {};
-                bo.retrieveById(cid, fields, context, w_manager).then(
+                //cbo.retrieveById(cid, fields, context, w_manager).then(
+                cbo.retrieveById(cid, fields, context).then(
                     function(c) {
                         if(c) {
                             let data = req.body;
@@ -185,21 +193,22 @@ let passreset = function(req, res, next, w_manager, rclient) {
                                 res.status(403).json('Forbidden: Can\'t use the old password');
                             }
                             else {
-                                bo.updatePassword(c.cid, data.new_password, w_manager).then(
+                                //cbo.updatePassword(c.cid, data.new_password, w_manager).then(
+                                cbo.updatePassword(c.cid, data.new_password).then(
                                     function(success) {
                                         _passreset.erase_reset_token(rclient, req.cookies["reset_token"]);
                                         res.status(201).json("Password reset successfully!");
                                     },
                                     function(error) {
-                                        console.log("passreset -> bo.updatePassword error: ", error);
-                                        res.status(500).json("passreset -> bo.updatePassword error: ", error);
+                                        console.log("passreset -> cbo.updatePassword error: ", error);
+                                        res.status(500).json("passreset -> cbo.updatePassword error: ", error);
                                     }
                                 ).catch(function(exc) {
-                                    console.log("passreset -> bo.updatePassword exception: ", exc);
-                                    res.status(500).json("passreset -> bo.updatePassword exception: ", exc);
-                                });        
+                                    console.log("passreset -> cbo.updatePassword exception: ", exc);
+                                    res.status(500).json("passreset -> cbo.updatePassword exception: ", exc);
+                                });
                             }
-                        } 
+                        }
                         else {
                             console.log("Token-CID pair invalid. Get a new reset link");
                             res.status(403).json("No CID for this token. Get a new reset link");
@@ -207,7 +216,7 @@ let passreset = function(req, res, next, w_manager, rclient) {
                     },
                     function(error) {
                         console.log("passreset error: ", error);
-                        res.status(500).json("passreset error: ", error);  
+                        res.status(500).json("passreset error: ", error);
                     }
                 ).catch(function(exc) {
                     console.log("passreset exception: ", exc);
@@ -229,11 +238,13 @@ let passreset = function(req, res, next, w_manager, rclient) {
 
 }
 
-let activate_account = function(req, res, next, wm, rclient) {
+//let activate_account = function(req, res, next, wm, rclient) {
+let activate_account = function(req, res, next, rclient) {
     return new Promise(function(resolve, reject) {
         email_activation.get_email(rclient, req.params.activation_token).then(
             function(email) {
-                 bo.activateAccount(email, wm).then(
+                 //cbo.activateAccount(email, wm).then(
+                 cbo.activateAccount(email).then(
                     function(success) {
                         resolve("Your account has been activated");
                     },
@@ -244,7 +255,7 @@ let activate_account = function(req, res, next, wm, rclient) {
                 .catch(function(exc) {
                     reject(exc);
                 });
-                
+
             },
             function(error) {
                 logging.error_message("customers.activate_account error: ", error);
@@ -260,14 +271,14 @@ let post = function(req, res, next) {
 
     let functionName="post:"
 
-    let data = req.body; 
+    let data = req.body;
     let context = {tenant: req.tenant};
 
     logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
     logging.debug_message(moduleName+functionName + "body  = ", data);
 
 
-    bo.create(data, context).then(
+    cbo.create(data, context).then(
         function(result) {
             if (result) {
                 res.status(201).json(result);
@@ -282,8 +293,8 @@ let post = function(req, res, next) {
 };
 
 
-let get_by_id = function(req, res, next, w_manager) {
-
+//let get_by_id = function(req, res, next, w_manager) {
+let get_by_id = function(req, res, next) {
 
     let functionName = "get_by_id:"
 
@@ -297,7 +308,8 @@ let get_by_id = function(req, res, next, w_manager) {
     try {
 
         fields = ['*']
-        bo.retrieveById(req.params.id, fields, context, w_manager).then(
+        //cbo.retrieveById(req.params.id, fields, context, w_manager).then(
+        cbo.retrieveById(req.params.id, fields, context).then(
             function(result) {
                 if (result) {
                     res.status(200).json(result);
@@ -344,7 +356,7 @@ let get_by_query =  function(req, res, next) {
         ;
         logging.debug_message('customers.get: query = ', req.query);
 
-        bo.retrieveByTemplate(req.query, fields, context).then(
+        cbo.retrieveByTemplate(req.query, fields, context).then(
             function (result) {
                 if (result) {
                     res.status(200).json(result);
