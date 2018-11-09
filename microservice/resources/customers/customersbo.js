@@ -105,10 +105,12 @@ exports.retrieveByEmail = function(email, fields, context) {
     let functionName = "retrieveByEmail";
     let customersdo = new cdo.CustomersDAO();
 
+    let template = { email: email }
     let the_context = context;
     return new Promise(function(resolve, reject) {
-        customersdo.retrieveByEmail(email, fields, context).then(
+        customersdo.retrieveByTemplate(template, fields, the_context).then(
             function(result) {
+                logging.debug_message(result);
                 resolve(result);
             },
             function(error) {

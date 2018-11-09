@@ -146,7 +146,7 @@ let passresetreq = function(req, res, next, rclient) {
 
     let fields = ['*'];
     //cbo.retrieveByEmail(data.user_email, fields, context, w_manager).then(
-    cbo.retrieveByEmail(data.user_email, fields, context).then(
+    cbo.retrieveByEmail(data.email, fields, context).then(
         function(result) {
             if(result.length > 0) {
                 result = result[0];
