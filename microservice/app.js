@@ -39,13 +39,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // /*for middleware and multitenancy*/
-// app.use('/', function(req, res, next) {
-//     logging.debug_message("headers = ", req.headers);
-//     let dnsFields = req.headers['host'].split('.');
-//     //req.tenant = dnsFields[0];
-//     req.tenant = 'E6156';
-//     next();
-// });
+//DO NOT COMMENT THIS OUT!!!!!
+app.use('/', function(req, res, next) {
+     logging.debug_message("headers = ", req.headers);
+     let dnsFields = req.headers['host'].split('.');
+     //req.tenant = dnsFields[0];
+     req.tenant = 'E6156';
+     next();
+ });
 
 app.use('/', indexRouter);
 app.get('/customers/:id', function(req, resp, next) {
@@ -91,7 +92,8 @@ app.get('/activateEmail/:activation_token', function(req, resp, next) {
   email_activation.validateActivationToken(rclient1, req.params.activation_token).then(
     function(success) {
       if(success == true) {
-        customersRouter.activate_account(req, resp, next, w_manager, rclient1).then(
+        //customersRouter.activate_account(req, resp, next, w_manager, rclient1).then(
+        customersRouter.activate_account(req, resp, next, rclient1).then(
           function(success) {
             resp.status(200).json(success);
           },
@@ -115,7 +117,8 @@ app.get('/activateEmail/:activation_token', function(req, resp, next) {
 });
 
 app.post('/passreset', function(req, resp, next) {
-  customersRouter.passreset(req, resp, next, w_manager, rclient0);
+  //customersRouter.passreset(req, resp, next, w_manager, rclient0);
+  customersRouter.passreset(req, resp, next, rclient0);
 });
 
 // catch 404 and forward to error handler

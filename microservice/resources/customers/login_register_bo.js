@@ -79,11 +79,12 @@ function getRandomInt(max) {
 }
 
 //exports.register =  function(d, context, wm, rclient) {
-exports.register =  function(d, context) {
+exports.register =  function(d, context, rclient) {
     d.status = "PENDING";
     return new Promise(function(resolve, reject) {
         //console.log(wm);
         //cbo.create(d, context, wm).then(
+        var d_email = d.email;
         cbo.create(d, context).then(
             function(c) {
                 let new_result = return_codes.codes.registration_success;
@@ -96,16 +97,17 @@ exports.register =  function(d, context) {
                 // add the logic to generate an activation link here
                 let random_nonce = getRandomInt(Date.now());
                 let sha = crypto.createHash('sha1');
-                let activation_token = sha.update(d.email + random_nonce).digest('hex');
+                let activation_token = sha.update(d_email + random_nonce).digest('hex');
                 new_result.activation_token = activation_token;
 
                 // insert this (token, cid) pair in the data store 1
-                email_activation.insert_activation_token(rclient, activation_token, d.email);
-                mail.sendActivationEmail('localhost:3000/activateEmail/' + activation_token, d.email);
+                email_activation.insert_activation_token(rclient, activation_token, d_email);
+                mail.sendActivationEmail('localhost:3000/activateEmail/' + activation_token, d_email);
+
                 resolve(new_result);
             },
             function(error) {
-                logging.error_message("logonbo.login: error = " + error);
+                logging.error_message("logonbo.register: error = " + error);
                 reject(error);
             }
         )

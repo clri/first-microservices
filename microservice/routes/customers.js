@@ -88,14 +88,15 @@ let register = function(req, res, next, rclient) {
     logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
     logging.debug_message(moduleName+functionName + "body  = ", data);
 
-    //@TODO: put back in when you've added the login
     //login_registration.register(data, context, w_manager, rclient).then(
     login_registration.register(data, context, rclient).then(
         function(result) {
             if (result) {
+               logging.debug_message(result);
                map_response(result, res);
             }
             else {
+                logging.debug_message("error with result undefined");
                 reject(return_codes.codes.internal_error);
             }
         },
@@ -174,7 +175,7 @@ let passresetreq = function(req, res, next, rclient) {
 let passreset = function(req, res, next, rclient) {
     let functionName = "passreset:";
     let data = req.body;
-    let context = {};
+    let context = {tenant: req.tenant};
 
     logging.debug_message(moduleName + functionName + "body = ", data);
     logging.debug_message(moduleName + functionName + "cookies = ", req.cookies);
@@ -194,7 +195,7 @@ let passreset = function(req, res, next, rclient) {
                             }
                             else {
                                 //cbo.updatePassword(c.cid, data.new_password, w_manager).then(
-                                cbo.updatePassword(c.cid, data.new_password).then(
+                                cbo.updatePassword(c.cid, data.new_password, context).then(
                                     function(success) {
                                         _passreset.erase_reset_token(rclient, req.cookies["reset_token"]);
                                         res.status(201).json("Password reset successfully!");
@@ -240,11 +241,13 @@ let passreset = function(req, res, next, rclient) {
 
 //let activate_account = function(req, res, next, wm, rclient) {
 let activate_account = function(req, res, next, rclient) {
+    let context = {tenant: req.tenant};
+
     return new Promise(function(resolve, reject) {
         email_activation.get_email(rclient, req.params.activation_token).then(
             function(email) {
                  //cbo.activateAccount(email, wm).then(
-                 cbo.activateAccount(email).then(
+                 cbo.activateAccount(email, context).then(
                     function(success) {
                         resolve("Your account has been activated");
                     },

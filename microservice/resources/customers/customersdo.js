@@ -123,6 +123,7 @@ let CustomersDAO = function() {
 
             // DO NOT STORE UNENCRYPTED PWs.
             data.pw = sandh.saltAndHash(data.pw);
+            logging.debug_message(data);
 
             // NOTE: Business layer determines if the created customer's state is PENDING.
             // "Customer" may be an admin or being created manually through some admin tasl.
@@ -153,7 +154,8 @@ let CustomersDAO = function() {
             // Add tenant_id to template.
 
             template.tenant_id = context.tenant;
-            template.status = {"!=": "DELETED"}
+            template.status = {"!=": "DELETED"};
+            logging.debug_message(template);
 
             self.theDao.update(template, fields).then(
                 function (result) {

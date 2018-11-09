@@ -157,18 +157,19 @@ exports.create = function(data, context) {
     var customersdo = new cdo.CustomersDAO();
     return new Promise(function (resolve, reject) {
 
-        data.id = generateId(data.user_last_name, data.user_first_name);
+        data.id = generateId(data.lastName, data.firstName);
         data.status = "PENDING";
 
         let email = data.email;
-
+        logging.debug_message(data);
+        logging.debug_message("asdf");
         if (validateCreateData(data) == false) {
             reject(return_codes.codes.invalid_create_data);
         }
         else {
             customersdo.create(data, context).then(
                 function (result) {
-                    //logging.debug_message(moduleName + functionName + "Result = ", result);
+                    logging.debug_message(moduleName + functionName + "Result = ", result);
                     /*
                     This part is due to the fact that I cannot get Waterline to run custom queries.
                     Need to find the ID. Relying on the fact that the email is unique.
@@ -192,19 +193,19 @@ exports.create = function(data, context) {
     });
 };
 
-exports.activateAccount = function(em) {
+exports.activateAccount = function(em, context) {
     let customersdo = new cdo.CustomersDAO();
     console.log(em);
     let template = {
-        where: {email: em}
+        //where: {email: em}
+        email: em
     }
-
     let updates = {
         status: "ACTIVE"
     }
 
     return new Promise(function(resolve, reject) {
-        customersdo.update(template, updates).then(
+        customersdo.update(template, updates, context).then(
             function(success) {
                 console.log("Account activated successfully", em);
                 resolve(success);
@@ -220,19 +221,20 @@ exports.activateAccount = function(em) {
     });
 }
 
-exports.updatePassword = function(cid, new_password) {
+exports.updatePassword = function(cid, new_password, context) {
     let functionName = "create";
     let customersdo = new cdo.CustomersDAO();
 
     let template = {
-        where: {id: cid}
+        //where: {id: cid}
+        id: cid
     }
     let updates = {
         pw: sandh.saltAndHash(new_password)
     }
 
     return new Promise(function(resolve, reject) {
-        customersdo.update(template, updates).then(
+        customersdo.update(template, updates, context).then(
             function(success) {
                 resolve(success);
             },

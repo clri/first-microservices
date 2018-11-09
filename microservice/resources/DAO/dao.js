@@ -242,7 +242,7 @@ let Dao = function(collection) {
                             resolve(result);
                         },
                         function (error) {
-                            logging.error_message("dao.Dao.update: error = ", error);
+                            logging.error_message("dao.Dao.updfate: error = ", error);
                             reject(error);
                         });
                 },
