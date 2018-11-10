@@ -11,7 +11,7 @@ create table `customers` (
   `customers_id` varchar(12) NOT NULL,
   `customers_lastname` varchar(64) NOT NULL,
   `customers_firstname` varchar(64) NOT NULL,
-  `customers_email` varchar(128) NOT NULL,
+  `customers_email` varchar(128) UNIQUE NOT NULL,
   `customers_status` enum('ACTIVE','PENDING','DELETED','SUSPENDED','LOCKED') NOT NULL,
   `customers_password` varchar(512) NOT NULL,
   `customers_last_login` bigint(20) NOT NULL,
