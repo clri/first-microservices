@@ -9,6 +9,7 @@ var logging = require('./lib/logging');
 
 var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
+var ordersRouter = require('./routes/orders');
 var _passreset = require('./resources/passreset/passreset');
 var email_activation = require('./resources/activation/activation');
 //var wline_manager = require('./wline_manager');
@@ -46,6 +47,10 @@ app.use('/', function(req, res, next) {
      //req.tenant = dnsFields[0];
      req.tenant = 'E6156';
      next();
+ });
+
+ app.get('/orders/:id', function(req, resp, next) {
+         ordersRouter.get_by_id(req, resp, next);
  });
 
 app.use('/', indexRouter);

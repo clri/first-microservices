@@ -57,6 +57,9 @@ let OrdersDAO = function() {
                             fields2.push(ordersCollection.attributes[field]['columnName'])
                     }
             }
+            if (fields.includes('created')) {
+                    fields2.push('createdAt')
+            }
             logging.debug_message(fields2)
             return fields2;
     }

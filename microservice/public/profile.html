@@ -128,6 +128,7 @@
 <!-- Profile details from customer -->
 <div id="profile_info" >
   <center>
+    <br />
     <div id="profile_info_uid">User ID: </div>
     <div id="profile_info_name">Name: </div>
     <div id="profile_info_email">Email: </div>
@@ -174,9 +175,6 @@
     var link = '/customers/' + profile_id;
     $.get(link)
       .done(function(resp) {
-              console.log("***");
-         console.log(resp);
-         console.log(resp.last_login);
          $('#profile_info_uid').html("User ID: " + resp.id);
          $('#profile_info_name').html("Name: " + resp.firstName + " " + resp.lastName);
          $('#profile_info_email').html("Email: " + resp.email);
