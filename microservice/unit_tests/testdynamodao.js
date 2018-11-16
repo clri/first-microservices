@@ -3,7 +3,7 @@
  */
 
 const logging = require('../lib/logging');
-const Dao = require('../resources/dynamodao');
+const Dao = require('../resources/DAO/dynamodao');
 
 // Metadata that defines the collection.
 let ordersCollection = {
@@ -21,7 +21,7 @@ let ordersCollection = {
     }
 };
 
-let testDao = new Dao.Dao(ordersCollection);
+let testDao = new Dao.DynDao(ordersCollection);
 
 //retrieve all fields by cust ID
 const test1 = function() {

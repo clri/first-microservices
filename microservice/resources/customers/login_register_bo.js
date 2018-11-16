@@ -19,7 +19,8 @@ let security = require('../../middleware/security');
 // Only does UID/Password right now.
 // TODO: Need to extend to support Facebook and other social media.
 //
-exports.login =  function(d, context, wm) {
+//exports.login =  function(d, context, wm) {
+exports.login =  function(d, context) {
 
     // Incoming data contains security information.
     // Email.
@@ -39,7 +40,8 @@ exports.login =  function(d, context, wm) {
 
 
     return new Promise(function(resolve, reject) {
-        cbo.retrieveByTemplate(template, fields, the_context, wm).then(
+        cbo.retrieveByTemplate(template, fields, the_context).then(
+        //cbo.retrieveByTemplate(template, fields, the_context, wm).then(
             function(c) {
                 // We found a customer. This was query, which returned an array. Get 1st element.
                 c = c[0];
@@ -67,7 +69,7 @@ exports.login =  function(d, context, wm) {
             }
         ).catch(function(exc) {
             logging.error_message("loginbo.login: exception = ", exc);
-            reject(return_codes.codes.internal_error);  
+            reject(return_codes.codes.internal_error);
         });
     });
 };
@@ -76,12 +78,14 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-exports.register =  function(d, context, wm, rclient) {
-
+//exports.register =  function(d, context, wm, rclient) {
+exports.register =  function(d, context, rclient) {
     d.status = "PENDING";
     return new Promise(function(resolve, reject) {
-        console.log(wm);
-        cbo.create(d, context, wm).then(
+        //console.log(wm);
+        //cbo.create(d, context, wm).then(
+        var d_email = d.email;
+        cbo.create(d, context).then(
             function(c) {
                 let new_result = return_codes.codes.registration_success;
                 let claim = security.generate_customer_claims(c, context);
@@ -93,16 +97,17 @@ exports.register =  function(d, context, wm, rclient) {
                 // add the logic to generate an activation link here
                 let random_nonce = getRandomInt(Date.now());
                 let sha = crypto.createHash('sha1');
-                let activation_token = sha.update(d.email + random_nonce).digest('hex');
+                let activation_token = sha.update(d_email + random_nonce).digest('hex');
                 new_result.activation_token = activation_token;
 
                 // insert this (token, cid) pair in the data store 1
-                email_activation.insert_activation_token(rclient, activation_token, d.email);
-                mail.sendActivationEmail('localhost:3000/activateEmail/' + activation_token, d.email);
+                email_activation.insert_activation_token(rclient, activation_token, d_email);
+                mail.sendActivationEmail('localhost:3000/activateEmail/' + activation_token, d_email);
+
                 resolve(new_result);
             },
             function(error) {
-                logging.error_message("logonbo.login: error = " + error);
+                logging.error_message("logonbo.register: error = " + error);
                 reject(error);
             }
         )

@@ -2,7 +2,7 @@
 
 let logging = require('../../lib/logging');
 //let Dao = require('../dao');
-let Dao = require('../dynamoDAO')
+let Dao = require('../DAO/dynamoDAO')
 
 
 // Metadata that defines the collection.
@@ -31,20 +31,22 @@ let ordersCollection = {
 let OrdersDAO = function() {
 
     // Make a DAO and initialize with the collection metadata.
-    this.theDao = new Dao.Dao(ordersCollection);
+    this.theDao = new Dao.DynDao(ordersCollection);
     let self = this;
 
     //column conversions, for dynamo
     self.columnToColumn2 = function(data) {
             var data2 = {}
+            //logging.debug_message(data);
             for (var attr in ordersCollection.attributes) {
-                    if (data.hasOwnProperty(attr['columnName'])) {
-                            data2[attr] = attr['columnName'];
+                    if (data.hasOwnProperty(ordersCollection.attributes[attr]['columnName'])) {
+                            data2[attr] = data[ordersCollection.attributes[attr]['columnName']];
                     }
             }
             if (data.hasOwnProperty('createdAt')) {
                     data2['created'] = data['createdAt']
             }
+            logging.debug_message(data2);
             return data2;
     }
 
@@ -61,19 +63,28 @@ let OrdersDAO = function() {
 
     this.retrieveById = function(id, fields, context) {
         // This is where we introduce multi-tenancy for data access.\
-        self.fieldToField(fields);
-        return self.theDao.retrieveById(id, self.fieldToField(fields)).then(
-        //return self.theDao.retrieveByTemplate(template, fields).then(
+        newFields = self.fieldToField(fields);
+        if (fields.includes('tenant_id') == false) {
+                newFields.push('tenant_id')
+        }
+        return self.theDao.retrieveById(id, newFields).then(
             function (result) {
                 //@TODO: filter result for tenant
                 var res2 = []
-                for (var itm in result['Items']) {
+                for (var itmno in result['Items']) {
+                        var itm = result['Items'][itmno]['attrs']
+                        //logging.debug_message(itm);
+                        //logging.debug_message('asdlkfj');
                         if(context.tenant == itm['tenant_id'] ) {
-                                res2.push(itm)
+                                if (fields.includes('tenant_id') == false) {
+                                        delete itm['tenant_id'];
+                                }
+                                res2.push(self.columnToColumn2(itm));
                         }
                 }
                 logging.debug_message("Result = ", result);
-                return self.columnToColumn2(res2); //result;
+                logging.debug_message("Result2 = ", res2);
+                return res2;
             }
         ).catch(function(error) {
             logging.debug_message("OrdersDAO.retrieveById: error = ", error);

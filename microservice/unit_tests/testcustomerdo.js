@@ -9,7 +9,7 @@ const cdo =
 let theCdo = new cdo.CustomersDAO();
 
 const testA = function() {
-    theCdo.retrieveById('kamc1', ['lastName', 'email'], {tenant: 'E6156'}).then(
+    theCdo.retrieveById('asas1', ['lastName', 'email'], {tenant: 'E6156'}).then(
         function(result) {
             logging.debug_message("testA result = ", result);
         })
@@ -80,8 +80,8 @@ let test_create = {
     pw: "realmadrid"
 };
 
-//testA();
+testA();
 //testB();
 //testC(test_create);
 //testD()
-testE()
+//testE()

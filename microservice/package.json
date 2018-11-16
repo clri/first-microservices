@@ -18,11 +18,13 @@
     "joi": "^14.0.1",
     "jsonwebtoken": "^8.3.0",
     "morgan": "~1.9.0",
+    "nodemailer": "^4.6.8",
     "password-hash": "^1.2.2",
     "sails": "^1.0.2",
     "sails-dynamodb": "^0.12.5",
     "sails-mysql": "^1.0.0",
     "serve-favicon": "^2.5.0",
+    "sleep": "^5.2.3",
     "waterline": "^0.13.5",
     "waterline-dynamodb": "^0.1.6"
   }

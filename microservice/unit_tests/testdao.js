@@ -3,7 +3,7 @@
  */
 
 const logging = require('../lib/logging');
-const Dao = require('../resources/dao');
+const Dao = require('../resources/DAO/dao');
 
 // Metadata that defines the collection.
 let customersCollection = {
@@ -139,10 +139,10 @@ const test7= function() {
 
 //@TODO: add more unit tests
 
-//test1();
+test1();
 //test2();
 //test4();
 //test5();
 //test6();
 //test7();
-test8();
+//test8();

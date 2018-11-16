@@ -11,16 +11,16 @@ var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
 var _passreset = require('./resources/passreset/passreset');
 var email_activation = require('./resources/activation/activation');
-var wline_manager = require('./wline_manager');
+//var wline_manager = require('./wline_manager');
 var rc = require('./rclient.js');
 
-function setOntology(ontology) {
+/*function setOntology(ontology) {
   w_manager.ontology = ontology;
   console.log(w_manager.ontology)
 }
 
 w_manager = new wline_manager.singleton_manager();
-w_manager.initialize(setOntology);
+w_manager.initialize(setOntology);*/
 var rclient0 = rc.init0();
 var rclient1 = rc.init1();
 
@@ -39,39 +39,44 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // /*for middleware and multitenancy*/
-// app.use('/', function(req, res, next) {
-//     logging.debug_message("headers = ", req.headers);
-//     let dnsFields = req.headers['host'].split('.');
-//     //req.tenant = dnsFields[0];
-//     req.tenant = 'E6156';
-//     next();
-// });
+//DO NOT COMMENT THIS OUT!!!!!
+app.use('/', function(req, res, next) {
+     logging.debug_message("headers = ", req.headers);
+     let dnsFields = req.headers['host'].split('.');
+     //req.tenant = dnsFields[0];
+     req.tenant = 'E6156';
+     next();
+ });
 
 app.use('/', indexRouter);
 app.get('/customers/:id', function(req, resp, next) {
-  customersRouter.get_by_id(req, resp, next, w_manager);
+  //customersRouter.get_by_id(req, resp, next, w_manager);
+  customersRouter.get_by_id(req, resp, next);
 });
 app.get('/customers', customersRouter.get_by_query);
 app.post('/customers', customersRouter.post);
 app.post('/register', function(req, resp, next) {
-  customersRouter.register(req, resp, next, w_manager, rclient1);
+  //customersRouter.register(req, resp, next, w_manager, rclient1);
+  customersRouter.register(req, resp, next, rclient1);
 });
 app.post('/login', function(req, resp, next) {
-  customersRouter.login(req, resp, next, w_manager); 
+  //customersRouter.login(req, resp, next, w_manager);
+  customersRouter.login(req, resp, next);
 });
 
 app.post('/passresetreq', function(req, resp, next) {
-  customersRouter.passresetreq(req, resp, next, w_manager, rclient0);
+  //customersRouter.passresetreq(req, resp, next, w_manager, rclient0);
+  customersRouter.passresetreq(req, resp, next, rclient0);
 });
 
 app.get('/forgotpassword/:reset_token', function(req, resp, next) {
   _passreset.validateResetToken(rclient0, req.params.reset_token).then(
     function(success) {
       if(success == true) {
-        resp.cookie("reset_token", req.params.reset_token).sendFile("forgotpassword.html", {root: "public/"});  
+        resp.cookie("reset_token", req.params.reset_token).sendFile("forgotpassword.html", {root: "public/"});
       }
       else {
-        resp.status(403).json("Forbidden: Invalid reset token.");    
+        resp.status(403).json("Forbidden: Invalid reset token.");
       }
     },
     function(error) {
@@ -87,7 +92,8 @@ app.get('/activateEmail/:activation_token', function(req, resp, next) {
   email_activation.validateActivationToken(rclient1, req.params.activation_token).then(
     function(success) {
       if(success == true) {
-        customersRouter.activate_account(req, resp, next, w_manager, rclient1).then(
+        //customersRouter.activate_account(req, resp, next, w_manager, rclient1).then(
+        customersRouter.activate_account(req, resp, next, rclient1).then(
           function(success) {
             resp.status(200).json(success);
           },
@@ -95,7 +101,7 @@ app.get('/activateEmail/:activation_token', function(req, resp, next) {
             resp.status(500).json(error);
           }
         ).catch(function(exc){
-          resp.status(500).json(exc);  
+          resp.status(500).json(exc);
         });
       }
       else {
@@ -111,7 +117,8 @@ app.get('/activateEmail/:activation_token', function(req, resp, next) {
 });
 
 app.post('/passreset', function(req, resp, next) {
-  customersRouter.passreset(req, resp, next, w_manager, rclient0);
+  //customersRouter.passreset(req, resp, next, w_manager, rclient0);
+  customersRouter.passreset(req, resp, next, rclient0);
 });
 
 // catch 404 and forward to error handler
