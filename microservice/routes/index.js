@@ -11,4 +11,9 @@ router.get('/home', function(req, res, next) {
   res.sendFile("home.html", {root: path.join(__dirname, "../public")});
 });
 
+//@TODO: send params in a cleaner way
+router.get('/profile/:profileID', function(req, res, next) {
+  res.sendFile("profile.html", {root: path.join(__dirname, "../public")})
+});
+
 module.exports = router;

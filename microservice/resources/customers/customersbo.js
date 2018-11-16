@@ -58,7 +58,7 @@ let validateUpdateData = function(data) {
 
 // Fields to return from queries from non-admins.
 // All of this needs to be in a reusable framework, otherwise I will repeat functions in every BO.
-let fields_to_return = ['id', 'user_last_name', 'user_first_name', 'email', 'last_login', 'created', 'pw', 'status'];
+let fields_to_return = ['id', 'lastName', 'firstName', 'email', 'last_login', 'created', 'pw', 'status'];
 let filter_response_fields = function (result, context) {
 
     // We would ONLY filter return values if this is not an internal, admin request.
