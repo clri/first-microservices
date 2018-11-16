@@ -1,5 +1,7 @@
+
+
 let logging = require('../../lib/logging');
-let DAO = require('../DAO/dao');
+let Dao = require('../DAO/dao');
 let sandh = require('../../lib/salthash');
 
 
@@ -56,10 +58,10 @@ let convertFromDate = function(r) {
 };
 
 
-let CustomersDAO = function(wm) {
+let CustomersDAO = function() {
 
     // Make a DAO and initialize with the collection metadata.
-    this.theDao = new DAO.DAO(wm);
+    this.theDao = new Dao.Dao(customersCollection);
     let self = this;
 
     this.retrieveById = function(id,  fields, context) {
@@ -68,34 +70,17 @@ let CustomersDAO = function(wm) {
         // Convert and ID lookup to a template look up and add tenant_id from the context.
         let template = {[customersCollection.primaryKey]: id, "tenant_id": context.tenant,
             status: {"!=": "DELETED"}};
+           logging.debug_message(template);
 
         return self.theDao.retrieveByTemplate(template, fields).then(
             function (result) {
-                result = convertToDate(result[0]);
+                 logging.debug_message(result);
+                result = convertToDate(result[0]);                  //  Need to convert numeric dates to Date();
+                logging.debug_message("ResultTHe = ", result);
                 return result;
             }
         ).catch(function(error) {
             logging.debug_message("CustomersDAO.retrieveById: error = ", error);
-        });
-    };
-
-
-    this.retrieveByEmail = function(email, fields, context) {
-        let template = {["email"]: email};
-
-        return new Promise(function(resolve, reject) {
-            return self.theDao.retrieveByTemplate(template, fields).then(
-                function(result) {
-                    resolve(result);
-                },
-                function(error) {
-                    logging.debug_message("CustomersDAO.retrieveByEmail: error", error);
-                    reject(error);
-                }
-            ).catch(function(exc) {
-                logging.debug_message("CustomersDAO.retrieveByEmail: exception", exc);
-                reject(exc);
-            });
         });
     };
 
@@ -138,6 +123,7 @@ let CustomersDAO = function(wm) {
 
             // DO NOT STORE UNENCRYPTED PWs.
             data.pw = sandh.saltAndHash(data.pw);
+            logging.debug_message(data);
 
             // NOTE: Business layer determines if the created customer's state is PENDING.
             // "Customer" may be an admin or being created manually through some admin tasl.
@@ -160,11 +146,23 @@ let CustomersDAO = function(wm) {
         });
     };
 
-    self.update = function(template, updates, context) {
+    // @TODO: Need to figure out how to handle return codes, e.g. not found.
+    // Will have to get row_count or do a findByTemplateFirst.
+    self.update = function(template, fields, context) {
+
         return new Promise(function (resolve, reject) {
-            self.theDao.update(template, updates).then(
+            // Add tenant_id to template.
+
+            template.tenant_id = context.tenant;
+            template.status = {"!=": "DELETED"};
+            logging.debug_message(template);
+
+            self.theDao.update(template, fields).then(
                 function (result) {
-                    resolve(result);
+                    if (result === undefined || result == null) {
+                        result = {}
+                    }
+                    resolve({});
                 },
                 function(error) {
                     logging.error_message("customersdo.update: Error = ", error);
@@ -178,6 +176,8 @@ let CustomersDAO = function(wm) {
 
     };
 
+    // @TODO: Need to figure out how to handle return codes, e.g. not found.
+    // Will have to get row_count or do a findByTemplateFirst.
     self.delete = function(template, context) {
 
         return new Promise(function (resolve, reject) {

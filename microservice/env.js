@@ -14,6 +14,16 @@ let env = {
     }
 };
 
+let dyn = {
+        accessKeyId: process.env.aws_access_key_id,
+        secretAccessKey: process.env.aws_secret_access_key,
+        region: "us-east-1"
+};
+
+exports.getDyn = function() {
+        return dyn;
+}
+
 exports.getEnv = function(n) {
     return env[n];
 };

@@ -4,7 +4,8 @@ let logging = require('./lib/logging');
 let env = require('./env');
 let sleep = require('sleep');
 
-let db_info = env.getEnv("local");
+//let db_info = env.getEnv("local");
+let db_info = env.getEnv("beanstalk");
 console.log(db_info);
 
 
@@ -49,7 +50,7 @@ let singleton_manager = function() {
 	let self = this;
 	self.waterline = new Waterline();
 	self.ontology = null;
-	
+
 
 	this.initialize = function(callback) {
 		self.waterline.initialize(global_config, function (err, result) {
@@ -73,7 +74,7 @@ let singleton_manager = function() {
 
 	registerCollection(customers_configuration);
 
-	
+
 }
 
 exports.singleton_manager = singleton_manager;

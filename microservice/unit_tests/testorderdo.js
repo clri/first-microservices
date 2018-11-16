@@ -82,8 +82,8 @@ let test_create = {
     totalPrice: 500
 };
 
-//testA();
+testA();
 //testB();
 //testC(test_create);
 //testD()
-testE()
+//testE()
