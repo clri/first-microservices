@@ -73,14 +73,20 @@ let filter_response_fields = function (result, context) {
     if (context.adminOperation) {
         return result;
     }
-
-    let new_result = null;
-    if (result != null) {
-        new_result = {};
-        for (let i = 0; i < fields_to_return.length; i++) {
-            let n = fields_to_return[i];
-            new_result[n] = result[n];
-        }
+    console.log("*&*");
+    //console.log(result);
+    let new_result = [];
+    for (let j = 0; j < result.length; j++) {
+        let resulti = result[j];
+        let new_resulti = {};
+        //if (result) {
+            for (let i = 0; i < fields_to_return.length; i++) {
+                let n = fields_to_return[i];
+                logging.debug_message(n);
+                new_resulti[n] = resulti[n];
+            }
+        //}
+        new_result.push(new_resulti);
     }
     return new_result;
 };
@@ -97,6 +103,7 @@ exports.retrieveById = function(id, fields, context) {
             function (result) {
                 console.log(result);
                 result = filter_response_fields(result, context);
+                console.log(result);
                 resolve(result);
             },
             function (error) {

@@ -67,19 +67,26 @@ let DynDao = function(collection) {
 
     // Retrieve by a single column, primary (hash) key.
     self.retrieveById = function(id, fields) {
+        logging.debug_message("******DYDAO")
+        logging.debug_message(id)
+        var that = this;
         return new Promise(function(resolve, reject) {
 
-            self.table.query(id).attributes(fields).loadAll().execAsync().then(
+            that.table.query(id).attributes(fields).loadAll().execAsync().then(
                 function(res) {
                     if (res) {
+                        logging.debug_message("******DYDAO1")
                         logging.debug_message("DyDao.retrieve_by_id: noerror  = " + res);
                         resolve(res);
                     }
                     else {
+                        logging.debug_message("******DYDAO2")
+                        logging.debug_message("DyDao got nothing");
                         resolve([]);
                     }
-                },
+            },
                 function (err) {
+                    logging.debug_message("******DYDAO3")
                     logging.debug_message("DyDao.retrieve_by_id: error  = " + err);
                     reject(err);
             });

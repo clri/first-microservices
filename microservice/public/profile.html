@@ -135,6 +135,16 @@
   </center>
 </div>
 
+<!-- Profile details from order -->
+<div id="orders_info" >
+  <center>
+    <br />
+    <h4>Orders</h4>
+    <br />
+    <ul id="orders_order">No Available Orders</ul>
+  </center>
+</div>
+
 <script type="text/javascript">
 
   function createCookie(name,value,days) {
@@ -184,6 +194,18 @@
     $.get(link2)
       .done(function(resp) {
          console.log(resp);
+         var lis = '';
+         for (var itme in resp) {
+                 let itm = resp[itme]
+                 console.log(itm);
+                 lis += "<li>";
+                 lis += "Order ID: " + itm.id;
+                 lis += "<br />" + "Order Date: " + itm.created;
+                 lis += "<br />" + "Items include: " + "pictures to be added..."
+                 //@TODO: product image(s) here
+                 lis += "</li>";
+         }
+         $('#orders_order').html(lis);
          //@TODO: when we have products working, get each product by ID
          //so we can display the images/names
     });

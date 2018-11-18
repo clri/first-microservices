@@ -60,7 +60,7 @@ let OrdersDAO = function() {
             if (fields.includes('created')) {
                     fields2.push('createdAt')
             }
-            logging.debug_message(fields2)
+            //logging.debug_message(fields2)
             return fields2;
     }
 
@@ -70,6 +70,7 @@ let OrdersDAO = function() {
         if (fields.includes('tenant_id') == false) {
                 newFields.push('tenant_id')
         }
+        logging.debug_message(newFields);
         return self.theDao.retrieveById(id, newFields).then(
             function (result) {
                 //@TODO: filter result for tenant
@@ -85,7 +86,7 @@ let OrdersDAO = function() {
                                 res2.push(self.columnToColumn2(itm));
                         }
                 }
-                logging.debug_message("Result = ", result);
+                //logging.debug_message("Result = ", result);
                 logging.debug_message("Result2 = ", res2);
                 return res2;
             }
