@@ -2,7 +2,7 @@
 
 let logging = require('../../lib/logging');
 //let Dao = require('../dao');
-let Dao = require('../DAO/dynamoDAO')
+let Dao = require('../DAO/dynamodao')
 
 
 // Metadata that defines the collection.
