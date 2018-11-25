@@ -35,7 +35,7 @@ let validateQueryParameters = function(template, context) {
 
 // Same idea for checking update information.
 //@TODO: implement (decide business logic for what is allowed)
-let validateUpdateData = function(data) {
+let validateCreateData = function(data) {
     // I feel lucky.
     return true;
 };
@@ -118,6 +118,12 @@ exports.retrieveByTemplate = function(template, fields, context) {
 exports.create = function(data, context) {
     let functionName = "create";
     var productdo = new pdo.ProductDAO();
+
+    //@TODO: is this the correct way of handling that?
+    if (!context.adminOperation) {
+            return return_codes.codes.internal_error;
+    }
+
     return new Promise(function (resolve, reject) {
 
         let dide = data.id;
