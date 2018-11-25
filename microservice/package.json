@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "aws-api-gateway-client": "^0.2.16",
     "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
     "debug": "~4.1.0",

@@ -44,6 +44,13 @@ create table `product` (
   PRIMARY KEY (`product_id`)
 );
 
+create table user_privilege(
+        user varchar(12) not null,
+        privilege int,
+        primary key(user),
+        constraint foreign key `user`(`user`) references `customers`(`customers_id`)
+);
+
 
 /*Triggers for Waterline adapted from lecture 3 */
 
