@@ -36,12 +36,9 @@ create table `product` (
   `product_id` int(10) NOT NULL AUTO_INCREMENT,
   `product_name` varchar(128) NOT NULL,
   `product_description` varchar(1024) NOT NULL,
+  `product_category` varchar(128) NOT NULL,
   `product_price` float NOT NULL,
-  `product_markdown` float NOT NULL,
-  `product_quantity_stocked` int NOT NULL,
   `product_image_url` varchar(1024) NOT NULL,
-  `product_status` enum('ACTIVE', 'BACK_ORDER', 'DELETED') NOT NULL,
-  `product_created` bigint(20) NOT NULL,
   `product_modified` bigint(20) NOT NULL,
   `tenant_id` varchar(12) NOT NULL,
   PRIMARY KEY (`product_id`)
