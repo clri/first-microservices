@@ -1,7 +1,7 @@
 
 
 let logging = require('../../lib/logging');
-let Dao = require('../dao');
+let Dao = require('../DAO/dao');
 
 
 // Metadata that defines the collection.
@@ -15,10 +15,7 @@ let productCollection = {
         name: {type: 'string', required: true, columnName: "product_name"},
         description: {type: 'string', required: true, columnName: "product_description"},
         price: {type: 'number', required: true, columnName: "product_price"},
-        markdown: {type: 'number', required: true, columnName: 'product_markdown'},
-        stocked: {type: 'number', required: true, columnName: 'product_quantity_stocked'},
-        url: {type: 'string', required: true, columnName: 'product_image_url'},
-        status: {type: 'string', required: true, columnName: 'product_status'},
+        img_url: {type: 'string', required: true, columnName: 'product_image_url'},
         created: {type: 'number', required: true, columnName: 'product_created'},
         modified: {type: 'number', required: true, columnName: 'product_modified'},
         tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
