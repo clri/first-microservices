@@ -3,7 +3,6 @@
 let logging = require('../../lib/logging');
 let Dao = require('../DAO/dao');
 
-
 // Metadata that defines the collection.
 let productCollection = {
     identity: 'product',
@@ -14,9 +13,10 @@ let productCollection = {
         id: {type: 'number', required: true, columnName: 'product_id'},
         name: {type: 'string', required: true, columnName: "product_name"},
         description: {type: 'string', required: true, columnName: "product_description"},
+        category: {type: 'string', required: true, columnName: "product_category"},
         price: {type: 'number', required: true, columnName: "product_price"},
         img_url: {type: 'string', required: true, columnName: 'product_image_url'},
-        created: {type: 'number', required: true, columnName: 'product_created'},
+        //created: {type: 'number', required: true, columnName: 'product_created'},
         modified: {type: 'number', required: true, columnName: 'product_modified'},
         tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
     }
@@ -25,9 +25,9 @@ let productCollection = {
 // This kind of stinks. Waterline does not support TIMESTAMP and other MySQL data types.
 let convertToDate = function(r) {
     if (r != null) {
-        if (r.created) {
+        /*if (r.created) {
             r.created = new Date(r.created);
-        };
+    };*/
         if (r.modified) {
             r.modified = new Date(r.modified);
         };
@@ -38,9 +38,9 @@ let convertToDate = function(r) {
 // This kind of stinks. Waterline does not support TIMESTAMP and other MySQL data types.
 let convertFromDate = function(r) {
     if (r != null) {
-        if (r.created) {
+        /*if (r.created) {
             r.create = r.created.getTime();
-        };
+    };*/
         if (r.modified) {
             r.modified = r.modified.getTime();
         };
@@ -104,7 +104,7 @@ let ProductDAO = function() {
             // 2. Hash/Salt the password.
 
             // Set created and modified.
-            data.created = new Date();
+            //data.created = new Date();
             data.modified = new Date();
             data = convertToDate(data);
 

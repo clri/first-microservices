@@ -15,7 +15,7 @@ let sandh = require('../../lib/salthash');
 
 // Business logic may dictate that not all parameters are queryable.
 // This should probably be part of a configurable framework that all BOs and use.
-let validQParams = ['id', 'name', 'description', 'price', 'img_url'];
+let validQParams = ['id', 'name', 'description', 'price', 'category', 'img_url'];
 let validateQueryParameters = function(template, context) {
     // We would ONLY filter  values if this is not an internal, admin request.
     if (context.adminOperation) {
@@ -32,12 +32,6 @@ let validateQueryParameters = function(template, context) {
     return true;
 };
 
-// Same idea for checking create information.
-//@TODO: implement (make sure all required fields aside from date/custid are there)
-let validateCreateData = function(data) {
-    // I feel lucky.
-    return true;
-};
 
 // Same idea for checking update information.
 //@TODO: implement (decide business logic for what is allowed)
@@ -48,7 +42,7 @@ let validateUpdateData = function(data) {
 
 // Fields to return from queries from non-admins.
 // All of this needs to be in a reusable framework, otherwise I will repeat functions in every BO.
-let fields_to_return = ['id', 'name', 'description', 'price', 'img_url'];
+let fields_to_return = ['id', 'name', 'description', 'price', 'category', 'img_url'];
 let filter_response_fields = function (result, context) {
 
     // We would ONLY filter return values if this is not an internal, admin request.
@@ -129,9 +123,6 @@ exports.create = function(data, context) {
         let dide = data.id;
         logging.debug_message(data);
         logging.debug_message("asdfff");
-        if (validateCreateData(data) == false) {
-            reject(return_codes.codes.invalid_create_data);
-        }
         else {
             productdo.create(data, context).then(
                 function (result) {

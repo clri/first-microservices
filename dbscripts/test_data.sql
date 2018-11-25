@@ -15,6 +15,6 @@ insert into social_information values('masm1', 'twitter', '1235', 'aslkdure2oi34
 insert into social_information values('stbr1', 'facebook', '12345', 'aslkdure2oi348234o98usoer8us8e9432', 'E6156');
 
 -- products
-insert into product values(1, 'pancakes', 'one stack of pancakes', 8.95, 0, 100, 'http://', 'DELETED', 20180904100334, 20180904100334, 'E6156');
-insert into product values(2, 'coffee', 'one pound of arabica beans, dark roast', 12, 5, 50, 'http://', 'ACTIVE', 20180904100334, 20180904100334, 'E6156');
-insert into product values(3, 'earl grey tea', 'made from fresh tea leaves, 5 boxes at 20 bags per box', 10.95, 0.05, 0, 'http://', 'BACK_ORDER', 20180904100334, 20180904100334, 'E6156');
+insert into product values(1, 'pancakes', 'one stack of pancakes', 'food', 8.95, 'https://static01.nyt.com/images/2017/03/24/dining/24COOKING-CLASSICPANCAKES/24COOKING-CLASSICPANCAKES-articleLarge.jpg', 20180904100334, 'E6156');
+insert into product values(2, 'coffee', 'one pound of arabica beans, dark roast', 'cafe', 12, 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/1024px-A_small_cup_of_coffee.JPG', 20180904100334, 'E6156');
+insert into product values(3, 'earl grey tea', 'made from fresh tea leaves, 5 boxes at 20 bags per box', 'cafe', 10.95, 'https://cbtl-images.s3.us-west-1.amazonaws.com/Production/Drupal/s3fs-public/styles/cafe_menu_item_teaser/public/cafe-menu/Hot-Black-Tea.jpg?itok=dYziJ_Tq', 20180904100334, 'E6156');
