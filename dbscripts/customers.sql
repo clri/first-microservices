@@ -32,6 +32,11 @@ create table `social_information` (
   CONSTRAINT FOREIGN KEY `customer_id`(`customer_id`) REFERENCES `customers`(`customers_id`)
 );
 
+create table `prod_category` (
+  `category` varchar(128) NOT NULL,
+    PRIMARY KEY (`category`)
+);
+
 create table `product` (
   `product_id` int(10) NOT NULL AUTO_INCREMENT,
   `product_name` varchar(128) NOT NULL,
@@ -41,7 +46,8 @@ create table `product` (
   `product_image_url` varchar(1024) NOT NULL,
   `product_modified` bigint(20) NOT NULL,
   `tenant_id` varchar(12) NOT NULL,
-  PRIMARY KEY (`product_id`)
+  PRIMARY KEY (`product_id`),
+  CONSTRAINT FOREIGN KEY `product_category`(`product_category`) REFERENCES `prod_category`(`category`)
 );
 
 create table user_privilege(
