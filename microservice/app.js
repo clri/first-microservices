@@ -10,6 +10,7 @@ var logging = require('./lib/logging');
 var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
 var ordersRouter = require('./routes/orders');
+var productRouter = require('./routes/product');
 var _passreset = require('./resources/passreset/passreset');
 var email_activation = require('./resources/activation/activation');
 //var wline_manager = require('./wline_manager');
@@ -60,6 +61,16 @@ app.get('/customers/:id', function(req, resp, next) {
 });
 app.get('/customers', customersRouter.get_by_query);
 app.post('/customers', customersRouter.post);
+
+app.get('/products/:id', function(req, resp, next) {
+  //customersRouter.get_by_id(req, resp, next, w_manager);
+  productRouter.get_by_id(req, resp, next);
+});/*
+app.get('/shopall', productRouter.get_by_query);
+app.get('/shopall/:category', function(req, resp, next) {
+  //customersRouter.get_by_id(req, resp, next, w_manager);
+  productRouter.get_by_category(req, resp, next);
+});*/
 app.post('/register', function(req, resp, next) {
   //customersRouter.register(req, resp, next, w_manager, rclient1);
   customersRouter.register(req, resp, next, rclient1);

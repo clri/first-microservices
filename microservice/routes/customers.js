@@ -8,9 +8,28 @@ let mail = require('../mail');
 let crypto = require('crypto');
 let sandh = require('../lib/salthash');
 let email_activation = require('../resources/activation/activation');
+let env = require('../env');
 
 
 let moduleName = "customers.";
+
+let get_admin_operation = function(user) {
+        var apigClientFactory = require('aws-api-gateway-client').default;
+
+        var apigClient = apigClientFactory.newClient({
+                invokeUrl: invokeU
+        });
+
+        apigClient.invokeApi(params, '/userPrivilege', 'GET', body, additionalParams)
+        .then(function(result){
+                res = result['data']['admin'][0];
+                logging.debug_message(res);
+                return res;
+        }).catch( function(err){
+                logging.debug_message(err);
+                return 0;
+        });
+}
 
 
 let map_response = function(e, res) {
@@ -82,8 +101,8 @@ let register = function(req, res, next, rclient) {
 
     let data = req.body;
 
-    // I will explain the tenant stuff later.
-    let context = {tenant: req.tenant};
+    var admop = 0;//get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
 
     logging.debug_message(moduleName+functionName + "tenant  = ", req.tenant);
     logging.debug_message(moduleName+functionName + "body  = ", data);
@@ -112,7 +131,8 @@ let login = function(req, res, next) {
     let functionName = "login:"
 
     let data = req.body;
-    let context = {tenant: req.tenant};
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
 
     logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
     logging.debug_message(moduleName + functionName + "body  = ", data);
@@ -140,7 +160,10 @@ function getRandomInt(max) {
 let passresetreq = function(req, res, next, rclient) {
     let functionName = "passresetreq:";
     let data = req.body;
-    let context = {};
+
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
+
 
     logging.debug_message(moduleName + functionName + "body = ", data);
 
@@ -175,7 +198,8 @@ let passresetreq = function(req, res, next, rclient) {
 let passreset = function(req, res, next, rclient) {
     let functionName = "passreset:";
     let data = req.body;
-    let context = {tenant: req.tenant};
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
 
     logging.debug_message(moduleName + functionName + "body = ", data);
     logging.debug_message(moduleName + functionName + "cookies = ", req.cookies);
@@ -241,7 +265,8 @@ let passreset = function(req, res, next, rclient) {
 
 //let activate_account = function(req, res, next, wm, rclient) {
 let activate_account = function(req, res, next, rclient) {
-    let context = {tenant: req.tenant};
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
 
     return new Promise(function(resolve, reject) {
         email_activation.get_email(rclient, req.params.activation_token).then(
@@ -303,9 +328,11 @@ let get_by_id = function(req, res, next) {
 
     logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
     logging.debug_message(moduleName + functionName + "params  = ", req.params);
+    //logging.debug_message(req.query);
+    var admop = 0;// get_admin_operation(req.query['user']);
 
     // Extract the tenant from the HTTP header.
-    let context = {tenant: req.tenant};
+    let context = {tenant: req.tenant, adminOperation: admop};
     let fields = null;
 
     try {
@@ -345,7 +372,8 @@ let get_by_query =  function(req, res, next) {
     logging.debug_message("params  = ", req.params);
     logging.debug_message("query  = ", req.query);
 
-    context = {tenant: req.tenant};
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
 
     let fields = [];
     try {

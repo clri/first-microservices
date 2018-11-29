@@ -129,21 +129,15 @@
 <div id="profile_info" >
   <center>
     <br />
-    <div id="profile_info_uid">User ID: </div>
+    <div id="profile_info_pid">User ID: </div>
     <div id="profile_info_name">Name: </div>
-    <div id="profile_info_email">Email: </div>
+    <div id="profile_info_desc">Email: </div>
+    <div id="profile_info_price">Email: </div>
+    <div id="profile_info_cat">Email: </div>
+    <img id="profile_info_img" src=""></img>
   </center>
 </div>
 
-<!-- Profile details from order -->
-<div id="orders_info" >
-  <center>
-    <br />
-    <h4>Orders</h4>
-    <br />
-    <ul id="orders_order">No Available Orders</ul>
-  </center>
-</div>
 
 <script type="text/javascript">
 
@@ -180,38 +174,21 @@
 
   function getProfileOrders(usid) {
     var my_url = window.location.href.split("/");
-    var profile_id = my_url[my_url.length - 1];
+    var itm_id = my_url[my_url.length - 1];
 
     if (!usid) {
             usid = 'null';
     }
 
-    var link = '/customers/' + profile_id;
+    var link = '/products/' + itm_id;
     $.get(link)
       .done(function(resp) {
-         $('#profile_info_uid').html("User ID: " + resp.id);
-         $('#profile_info_name').html("Name: " + resp.firstName + " " + resp.lastName);
-         $('#profile_info_email').html("Email: " + resp.email);
-    });
-
-    var link2 = '/orders/' + profile_id;
-    $.get(link2)
-      .done(function(resp) {
-         console.log(resp);
-         var lis = '';
-         for (var itme in resp) {
-                 let itm = resp[itme]
-                 console.log(itm);
-                 lis += "<li>";
-                 lis += "Order ID: " + itm.id;
-                 lis += "<br />" + "Order Date: " + itm.created;
-                 lis += "<br />" + "Items include: " + "pictures to be added..."
-                 //@TODO: product image(s) here
-                 lis += "</li>";
-         }
-         $('#orders_order').html(lis);
-         //@TODO: when we have products working, get each product by ID
-         //so we can display the images/names
+         $('#profile_info_pid').html("Product ID: " + resp.id);
+         $('#profile_info_name').html("Name: " + resp.name);
+         $('#profile_info_desc').html("Description: " + resp.description);
+         $('#profile_info_price').html("Price: " + resp.price);
+         $('#profile_info_cat').html("Category: " + resp.category);
+         $('#profile_info_img').attr("src", resp.img_url);
     });
   }
 
