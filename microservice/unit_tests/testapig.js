@@ -1,6 +1,9 @@
 //test for APIGClient
 
 let logging = require('../lib/logging');
+let env = require('../env');
+
+let invokeU = env.getApig();
 
 var params = {};
 var body = {};
@@ -13,12 +16,12 @@ var additionalParams = {
 var apigClientFactory = require('aws-api-gateway-client').default;
 
 var apigClient = apigClientFactory.newClient({
-        invokeUrl:'https://8s24k0ounj.execute-api.us-east-1.amazonaws.com/default'
+        invokeUrl: invokeU
 });
 
 apigClient.invokeApi(params, '/userPrivilege', 'GET', body, additionalParams)
 .then(function(result){
-        logging.debug_message(result);
+        logging.debug_message(result['data']);
 }).catch( function(err){
         logging.debug_message(err);
 });

@@ -24,6 +24,10 @@ exports.getDyn = function() {
         return dyn;
 }
 
+exports.getApig = function() {
+        return 'https://8s24k0ounj.execute-api.us-east-1.amazonaws.com/default';
+}
+
 exports.getEnv = function(n) {
     return env[n];
 };

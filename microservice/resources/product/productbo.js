@@ -84,6 +84,29 @@ exports.retrieveById = function(id, fields, context) {
     });
 };
 
+exports.retrieveByCategory = function(categ, fields, context) {
+    let functionName = "retrieveByCategory";
+    let productdo = new pdo.ProductDAO();
+
+    let the_context = context;
+
+    return new Promise(function (resolve, reject) {
+
+        productdo.retrieveByTemplate({category: categ}, fields, context).then(
+            function (result) {
+                console.log(result);
+                result = filter_response_fields(result, context);
+                resolve(result);
+            },
+            function (error) {
+                logging.error_message(moduleName + functionName + "jerrorn = ", error);
+                reject(return_codes.codes.internal_error);
+            }
+        )
+
+    });
+};
+
 
 exports.retrieveByTemplate = function(template, fields, context) {
     let functionName = "retrieveByTemplate";

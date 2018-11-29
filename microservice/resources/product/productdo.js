@@ -59,8 +59,7 @@ let ProductDAO = function() {
 
         // This is where we introduce multi-tenancy for data access.
         // Convert and ID lookup to a template look up and add tenant_id from the context.
-        let template = {[productCollection.primaryKey]: id, "tenant_id": context.tenant,
-            status: {"!=": "DELETED"}};
+        let template = {[productCollection.primaryKey]: id, "tenant_id": context.tenant};
 
         return self.theDao.retrieveByTemplate(template, fields).then(
             function (result) {
@@ -78,10 +77,6 @@ let ProductDAO = function() {
 
         // Add tenant_id to template.
         tmpl.tenant_id = context.tenant;
-
-        if (!tmpl.status) {
-            tmpl.status = {"!=": "DELETED"}
-        }
 
         return self.theDao.retrieveByTemplate(tmpl, fields).then(
             function(result) {
@@ -134,7 +129,6 @@ let ProductDAO = function() {
             // Add tenant_id to template.
 
             template.tenant_id = context.tenant;
-            template.status = {"!=": "DELETED"}
 
             self.theDao.update(template, fields).then(
                 function (result) {
