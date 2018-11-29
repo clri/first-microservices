@@ -41,6 +41,17 @@ const testC = function(d) {
             });
 };
 
+const testD = function() {
+        thePdo.maxid({tenant: 'E6156'}).then(
+            function(result) {
+                logging.debug_message("testD result = ", result);
+            })
+            .catch(
+                function(error) {
+                    logging.error_message("testD error = " + error);
+                });
+}
+
 
 let test_create = {
     id: 10,
@@ -67,4 +78,5 @@ let test_create_fail = {
 //testA();
 //testB();
 //testC(test_create);
-testC(test_create_fail);
+//testC(test_create_fail);
+testD();

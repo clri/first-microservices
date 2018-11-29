@@ -95,8 +95,11 @@ exports.retrieveByCategory = function(categ, fields, context) {
         productdo.retrieveByTemplate({category: categ}, fields, context).then(
             function (result) {
                 console.log(result);
-                result = filter_response_fields(result, context);
-                resolve(result);
+                res2 = [];
+                for (index = 0; index < result.length; index++) {
+                        res2.push(filter_response_fields(result[index], context));
+                }
+                resolve(res2);
             },
             function (error) {
                 logging.error_message(moduleName + functionName + "jerrorn = ", error);
@@ -142,39 +145,44 @@ exports.create = function(data, context) {
     let functionName = "create";
     var productdo = new pdo.ProductDAO();
 
-    //@TODO: is this the correct way of handling that?
-    if (!context.adminOperation) {
-            return return_codes.codes.internal_error;
-    }
 
     return new Promise(function (resolve, reject) {
+        if (!context.hasOwnProperty('adminOperation') || !context.adminOperation) {
+                 reject(return_codes.codes.internal_error);
+                 return;
+        }
 
+
+        productdo.maxid(context).then(
+        function(result) {
+        data.id = result + 1;
         let dide = data.id;
-        logging.debug_message(data);
-        logging.debug_message("asdfff");
-        else {
-            productdo.create(data, context).then(
-                function (result) {
-                    logging.debug_message(moduleName + functionName + "Result = ", result);
+        productdo.create(data, context).then(
+            function (result) {
+                logging.debug_message(moduleName + functionName + "Result = ", result);
                     /*
                     This part is due to the fact that I cannot get Waterline to run custom queries.
                     Need to find the ID. Relying on the fact that the email is unique.
                      */
-                    exports.retrieveByTemplate({email: email}, null, context).then(
-                        function(result) {
-                            resolve({id: result[0].id});
-                        },
-                        function(error) {
-                            logging.error_message(moduleName + functionName + "error trying to get ID  = ", error);
-                        }
-                    );
-                },
-                function (error) {
-                    logging.error_message(moduleName + functionName + "Yerror = ", error);
-                    reject(error);
-                }
-            );
-        }
+                exports.retrieveByTemplate({id: dide}, null, context).then(
+                    function(result) {
+                        resolve({id: result[0].id});
+                    },
+                    function(error) {
+                        logging.error_message(moduleName + functionName + "error trying to get ID  = ", error);
+                    }
+                );
+            },
+            function (error) {
+                logging.error_message(moduleName + functionName + "Yerror = ", error);
+                reject(error);
+            }
+        )
+        }, function(error) {
+            logging.error_message(moduleName + functionName + "Yerror = ", error);
+            reject(error);
+        });
+
 
     });
 };

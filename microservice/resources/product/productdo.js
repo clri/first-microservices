@@ -149,33 +149,23 @@ let ProductDAO = function() {
 
     };
 
-    // @TODO: Need to figure out how to handle return codes, e.g. not found.
-    // Will have to get row_count or do a findByTemplateFirst.
-    self.delete = function(template, context) {
-
-        return new Promise(function (resolve, reject) {
-            // Add tenant_id to template.
-            template.tenant_id = context.tenant;
-
-            let data = { status: "DELETED"};
-
-            self.update(template, data, context).then(
-                function (result) {
-                    if (result === undefined || result == null) {
-                        result = {}
-                    }
-                    resolve({})
-                },
-                function(error) {
-                    logging.error_message("productdo.delete: Error = ", error);
-                    reject(error);
-                })
-                .catch(function(exc) {
-                    logging.error_message("productdo.delete: Exception = " + exc);
-                    reject(exc);
-                });
-        });
-
+    self.maxid = function(context) {
+            return new Promise(function(resolve, reject) {
+                self.theDao.retrieveByTemplate({}, ['id']).then(
+                        function(result) {
+                                ans = 0;
+                                for (i = 0; i < result.length; i++) {
+                                        ans++;
+                                }
+                                logging.debug_message(result);
+                                resolve(ans);
+                        },
+                        function(error) {
+                                logging.debug_message(error);
+                                reject(error);
+                        }
+                )
+            });
     };
 
 }
