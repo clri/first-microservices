@@ -13,15 +13,56 @@ var additionalParams = {
         }
 };
 
+var additionalParams2 = {
+        queryParams: {
+                items: [1]
+        }
+};
+
+var additionalParams3 = {
+        queryParams: {
+                items: [1,1]
+        }
+};
+
+var additionalParams4 = {
+        queryParams: {
+                items: [1, 2]
+        }
+};
+
+var additionalParams5 = {
+        queryParams: {
+                items: [1, 2, 3489]
+        }
+};
+
 var apigClientFactory = require('aws-api-gateway-client').default;
 
 var apigClient = apigClientFactory.newClient({
         invokeUrl: invokeU
 });
 
-apigClient.invokeApi(params, '/userPrivilege', 'GET', body, additionalParams)
-.then(function(result){
-        logging.debug_message(result['data']);
-}).catch( function(err){
-        logging.debug_message(err);
-});
+let testA = function() {
+        apigClient.invokeApi(params, '/userPrivilege', 'GET', body, additionalParams)
+        .then(function(result){
+                logging.debug_message(result['data']);
+        }).catch( function(err){
+                logging.debug_message(err);
+        });
+}
+
+let testB = function(adpar) {
+        apigClient.invokeApi(params, '/validateOrders', 'GET', body, adpar)
+        .then(function(result){
+                logging.debug_message(result['data']);
+        }).catch( function(err){
+                logging.debug_message(err);
+        });
+}
+
+//testA();
+//testB(additionalParams2);
+//testB(additionalParams3);
+//testB(additionalParams4);
+testB(additionalParams5);
