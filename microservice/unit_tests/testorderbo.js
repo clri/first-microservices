@@ -21,7 +21,7 @@ let testB1 = function() {
 
 let test_create = {
     customer: 'sulu1',
-    items: ['item1', 'item2']
+    items: [1, 2]/*['item1', 'item2']*/
 };
 
 let testB2 = function(d) {

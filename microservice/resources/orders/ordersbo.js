@@ -10,8 +10,19 @@ let return_codes =  require('../return_codes');                     // Come stan
 let moduleName = "ordersbo.";
 let uuid = require('uuid/v4');
 let customersbo = require('../customers/customersbo')
+let env = require('../../env');
 
+let invokeU = env.getApig();
 let ordersdo = new odo.OrdersDAO();
+
+var paramz = {};
+var bodyy = {};
+
+var apigClientFactory = require('aws-api-gateway-client').default;
+
+var apigClient = apigClientFactory.newClient({
+        invokeUrl: invokeU
+});
 
 // Business logic may dictate that not all parameters are queryable.
 // This should probably be part of a configurable framework that all BOs and use.
@@ -47,8 +58,28 @@ let validateCreateData = function(data, context) {
             }
     }
     //@TODO: foreign key relationship to products
-    //(also we will calculate total price here as the summation)
-    data['totalPrice'] = 0;
+    //because of waterline being tricky, we will call a lambda function here
+    var adpar = {
+            queryParams: {
+                    items: data['items']
+            }
+    };
+
+    logging.debug_message("AAAAAA*******AAAAAAA")
+    apigClient.invokeApi(paramz, '/validateOrders', 'GET', bodyy, adpar)
+    .then(function(result){
+            lans = result['data'];
+            //logging.debug_message(lans);
+            if (lans['valid'] == 0) {
+                    return false;
+            } else {
+                    data['totalPrice'] = lans['totalPrice'];
+            }
+    }).catch( function(err){
+            logging.debug_message(err);
+            return false;
+    });
+
 
     //make sure the customer is a valid customer
     customersbo.retrieveById(data['customer'], ['id'], context).then(
@@ -104,6 +135,13 @@ exports.retrieveById = function(id, fields, context) {
                 console.log(result);
                 result = filter_response_fields(result, context);
                 console.log(result);
+                if (result.hasOwnProperty('items') && (typeof result['items'] != 'undefined')) {
+                        oitms = []
+                        for (var ii = 0; ii < result['items'].length; ii++) {
+                                oitms.push(parseInt(result['items'][ii]))
+                        }
+                        result['items'] = oitms
+                }
                 resolve(result);
             },
             function (error) {
@@ -129,6 +167,12 @@ exports.create = function(data, context) {
             reject(return_codes.codes.invalid_create_data);
         }
         else {
+            oitms = []
+            for (var ii = 0; ii < data['items'].length; ii++) {
+                    oitms.push(data['items'][ii].toString())
+            }
+
+            data['items'] = oitms
             ordersdo.create(data, context).then(
                 function (result) {
                     logging.debug_message(moduleName + functionName + "Result = ", result);
