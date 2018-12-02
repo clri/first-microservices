@@ -107,6 +107,7 @@ let getByQ = function(id, q, fields) {
     return new Promise(function (resolve, reject) {
         getCollection(id).then(
             function (result) {
+                logging.debug_message(result);
                 if (fields) {
                     resolve(result.find({"where": q, "select": fields}));
                 }

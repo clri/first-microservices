@@ -195,6 +195,7 @@
     });
 
     var link2 = '/orders/' + profile_id;
+    var link3 = '';
     $.get(link2)
       .done(function(resp) {
          console.log(resp);
@@ -202,11 +203,16 @@
          for (var itme in resp) {
                  let itm = resp[itme]
                  console.log(itm);
+                 var firstprod = itm.items[0];
+                 //link3 = '/products/' + firstprod;
                  lis += "<li>";
                  lis += "Order ID: " + itm.id;
                  lis += "<br />" + "Order Date: " + itm.created;
-                 lis += "<br />" + "Items include: " + "pictures to be added..."
-                 //@TODO: product image(s) here
+                 //lis += "<br />" + "Items include: <br />" //+ "pictures to be added..."
+                 /*$.get(link3).done(function(respo) {
+                         console.log(respo);
+                         lis += "<a href=\"" + respo.img_url + "\"></a>"
+                 })*/
                  lis += "</li>";
          }
          $('#orders_order').html(lis);

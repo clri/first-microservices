@@ -50,7 +50,7 @@ let get_by_id = function(req, res, next) {
 
         fields = ['*']
         //pbo.retrieveById(req.params.id, fields, context, w_manager).then(
-        pbo.retrieveById(req.params.id, fields, context).then(
+        pbo.retrieveById(parseInt(req.params.id), fields, context).then(
             function(result) {
                 if (result) {
                     res.status(200).json(result);

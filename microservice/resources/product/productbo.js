@@ -70,7 +70,7 @@ exports.retrieveById = function(id, fields, context) {
 
     return new Promise(function (resolve, reject) {
 
-        productdo.retrieveById(id, fields, context).then(
+        productdo.retrieveById(parseInt(id), fields, context).then(
             function (result) {
                 console.log(result);
                 result = filter_response_fields(result, context);

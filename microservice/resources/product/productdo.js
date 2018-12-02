@@ -48,23 +48,27 @@ let convertFromDate = function(r) {
     return r;
 };
 
+let theDao = new Dao.Dao(productCollection);
+
 
 let ProductDAO = function() {
 
     // Make a DAO and initialize with the collection metadata.
-    this.theDao = new Dao.Dao(productCollection);
+    this.theDao = theDao;
     let self = this;
 
     this.retrieveById = function(id,  fields, context) {
 
         // This is where we introduce multi-tenancy for data access.
         // Convert and ID lookup to a template look up and add tenant_id from the context.
-        let template = {[productCollection.primaryKey]: id, "tenant_id": context.tenant};
+        let template = {[productCollection.primaryKey]: parseInt(id), "tenant_id": context.tenant};
+        logging.debug_message(template);
+        logging.debug_message(fields);
 
         return self.theDao.retrieveByTemplate(template, fields).then(
             function (result) {
                 result = convertToDate(result[0]);                  //  Need to convert numeric dates to Date();
-                //logging.debug_message("Result = ", result);
+                logging.debug_message("Result = ", result);
                 return result;
             }
         ).catch(function(error) {
