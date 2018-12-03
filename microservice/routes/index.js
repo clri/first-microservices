@@ -19,9 +19,12 @@ router.get('/profile/:profileID', function(req, res, next) {
 router.get('/product/:productID', function(req, res, next) {
   res.sendFile("product.html", {root: path.join(__dirname, "../public")})
 });
-/*@TODO: implement
-router.get('/shop', function(req, res, next) {
-  res.sendFile("shop.html", {root: path.join(__dirname, "../public")})
-});*/
+
+router.get('/catalog', function(req, res, next) {
+  res.sendFile("catalog.html", {root: path.join(__dirname, "../public")})
+});
+router.get('/catalog/:categoryID', function(req, res, next) {
+  res.sendFile("catalog.html", {root: path.join(__dirname, "../public")})
+});
 
 module.exports = router;

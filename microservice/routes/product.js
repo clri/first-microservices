@@ -10,15 +10,27 @@ let sandh = require('../lib/salthash');
 let email_activation = require('../resources/activation/activation');
 let env = require('../env');
 
+let invokeU = env.getApig();
+
+var params = {};
+var body = {};
+var adpar = {};
+
+var apigClientFactory = require('aws-api-gateway-client').default;
+
+var apigClient = apigClientFactory.newClient({
+        invokeUrl: invokeU
+});
+
 
 let moduleName = "product.";
 
 let get_admin_operation = function(user) {
-        var apigClientFactory = require('aws-api-gateway-client').default;
-
-        var apigClient = apigClientFactory.newClient({
-                invokeUrl: invokeU
-        });
+        var additionalParams = {
+                queryParams: {
+                        uid: user
+                }
+        };
 
         apigClient.invokeApi(params, '/userPrivilege', 'GET', body, additionalParams)
         .then(function(result){
@@ -77,10 +89,31 @@ let get_by_id = function(req, res, next) {
 
 };
 
+let get_all = function(req, res, next) {
+
+    let functionName = "get_all:"
+
+    logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
+    logging.debug_message(moduleName + functionName + "params  = ", req.params);
+
+
+    apigClient.invokeApi(params, '/getallProducts', 'GET', body, {})
+    .then(function(result){
+            logging.debug_message(result['data']);
+            res.status(200).json(result['data']);
+    }).catch( function(err){
+            logging.debug_message(err);
+            res.status(404).send("Not found!")
+    });
+};
+
 let get_by_category =  function(req, res, next) {
+
+    let functionName = "get_by_cat:"
 
     logging.debug_message("tenant  = ", req.tenant);
     logging.debug_message("params  = ", req.params);
+    logging.debug_message(req.params.category);
 
     logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
     logging.debug_message(moduleName + functionName + "params  = ", req.params);
@@ -94,13 +127,16 @@ let get_by_category =  function(req, res, next) {
     try {
 
         fields = ['*']
-        //pbo.retrieveById(req.params.id, fields, context, w_manager).then(
+
+        logging.debug_message("ABC")
         pbo.retrieveByCategory(req.params.category, fields, context).then(
             function(result) {
                 if (result) {
+                        logging.debug_message("ABdC")
                     res.status(200).json(result);
                 }
                 else {
+                        logging.debug_message("AeBC")
                     res.status(404).send("Not found!")
                 }
             },
@@ -164,3 +200,5 @@ let get_by_query =  function(req, res, next) {
 
 exports.get_by_id = get_by_id;
 exports.get_by_query = get_by_query;
+exports.get_by_category = get_by_category;
+exports.getAll = get_all;

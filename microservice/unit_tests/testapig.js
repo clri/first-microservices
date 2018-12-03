@@ -61,8 +61,18 @@ let testB = function(adpar) {
         });
 }
 
+let testC = function() {
+        apigClient.invokeApi(params, '/getallProducts', 'GET', body, {})
+        .then(function(result){
+                logging.debug_message(result['data']);
+        }).catch( function(err){
+                logging.debug_message(err);
+        });
+}
+
 //testA();
 //testB(additionalParams2);
 //testB(additionalParams3);
 //testB(additionalParams4);
-testB(additionalParams5);
+//testB(additionalParams5);
+testC();

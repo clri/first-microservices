@@ -63,14 +63,15 @@ app.get('/customers', customersRouter.get_by_query);
 app.post('/customers', customersRouter.post);
 
 app.get('/products/:id', function(req, resp, next) {
-  //customersRouter.get_by_id(req, resp, next, w_manager);
   productRouter.get_by_id(req, resp, next);
-});/*
-app.get('/shopall', productRouter.get_by_query);
-app.get('/shopall/:category', function(req, resp, next) {
+});
+
+
+app.get('/wholecatalog', productRouter.getAll);
+app.get('/shop/:category', function(req, resp, next) {
   //customersRouter.get_by_id(req, resp, next, w_manager);
   productRouter.get_by_category(req, resp, next);
-});*/
+});
 app.post('/register', function(req, resp, next) {
   //customersRouter.register(req, resp, next, w_manager, rclient1);
   customersRouter.register(req, resp, next, rclient1);

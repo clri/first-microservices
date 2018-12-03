@@ -89,7 +89,8 @@ exports.retrieveByCategory = function(categ, fields, context) {
     let productdo = new pdo.ProductDAO();
 
     let the_context = context;
-
+    logging.debug_message("RRETRIEVING BY CATEGORY")
+    logging.debug_message(categ);
     return new Promise(function (resolve, reject) {
 
         productdo.retrieveByTemplate({category: categ}, fields, context).then(
