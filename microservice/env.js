@@ -15,8 +15,8 @@ let env = {
 };
 
 let dyn = {
-        accessKeyId: "AKIAI7YZUGWHH24SNPLQ",
-        secretAccessKey: "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",
+        accessKeyId: process.env.aws_access_key_id,
+        secretAccessKey: process.env.aws_secret_access_key,
         region: "us-east-1"
 };
 
