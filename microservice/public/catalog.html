@@ -125,11 +125,17 @@
   </div>
 </div>
 
+<div id="catalog_stuff">
+  <a href="/catalog">Shop All Categories</a>
+  |
+  <a href="/categories">Shop By Category</a>
+</div>
+
 <!-- Item details -->
 <div id="orders_info" >
   <center>
     <br />
-    <h4>Items</h4>
+    <h4 id="categ_title">All Items</h4>
     <br />
     <ul id="orders_order">No Available Items</ul>
   </center>
@@ -206,6 +212,7 @@
                             lis += "<img src=\"" + itme.img_url + "\"></img>"
                     }
                     $('#orders_order').html(lis);
+                    $('#categ_title').html(itm_id);
             });
 
     }

@@ -11,6 +11,7 @@ var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
 var ordersRouter = require('./routes/orders');
 var productRouter = require('./routes/product');
+var categoryRouter = require('./routes/category');
 var _passreset = require('./resources/passreset/passreset');
 var email_activation = require('./resources/activation/activation');
 //var wline_manager = require('./wline_manager');
@@ -64,6 +65,10 @@ app.post('/customers', customersRouter.post);
 
 app.get('/products/:id', function(req, resp, next) {
   productRouter.get_by_id(req, resp, next);
+});
+
+app.get('/getcats', function(req, resp, next) {
+  categoryRouter.get_cats(req, resp, next);
 });
 
 

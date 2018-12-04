@@ -16,3 +16,4 @@ To go to the catalog: localhost:3000/catalog
 To view a category in the catalog: localhost:3000/catalog/<category>
 To view a user's profile: localhost:3000/profile/<userid>
 To view a particular product: localhost:3000/product/<productid>
+To view all categories: localhost:3000/categories

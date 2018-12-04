@@ -27,4 +27,8 @@ router.get('/catalog/:categoryID', function(req, res, next) {
   res.sendFile("catalog.html", {root: path.join(__dirname, "../public")})
 });
 
+router.get('/categories', function(req, res, next) {
+  res.sendFile("categories.html", {root: path.join(__dirname, "../public")})
+});
+
 module.exports = router;
