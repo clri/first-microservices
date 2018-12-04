@@ -102,15 +102,37 @@ let DynDao = function(collection) {
             throw "Not implemented.";
     };
 
-    //we won't implement this yet either, unless we need to update orders
-    //(shipping address, payment method, etc is not handled in this db)
+    //IMPLEMENT
     self.update = function(template, updates) {
-            throw "Not implemented.";
-    };
+            for (var attr in updates) {
+                    template[attr] = updates[attr]
+            }
+            var that = this;
+            return new Promise(function(resolve, reject) {
+                    that.table.updateAsync(template).then(
+                            function(res) {
+                                    logging.debug_message("SUCCESS UPDATE" + res);
 
-    //and we won't delete orders; we need the history
+                            }, function(err) {
+                                    logging.debug_message(err);
+                            }
+                    );
+            })
+    }
+
+    //IMPLEMENT
     self.delete = function(template) {
-            throw "Not implemented.";
+            var that = this;
+           return new Promise(function(resolve, reject) {
+                   that.table.destroyAsync(template).then(
+                           function(res) {
+                                   logging.debug_message("SUCCESS DETROY" + res);
+
+                           }, function(err) {
+                                   logging.debug_message(err);
+                           }
+                   )
+           })
     };
 
 
