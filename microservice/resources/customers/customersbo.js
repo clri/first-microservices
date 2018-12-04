@@ -254,7 +254,7 @@ exports.updatePassword = function(cid, new_password, context) {
 exports.getAddress = function(id, context) {
         let functionNAme = "getAddress"
         let customersdo = new cdo.CustomersDAO();
-        let fields = ['address1', 'address1', 'city', 'state', 'zip']
+        let fields = ['address1', 'address2', 'city', 'state', 'zip']
 
         return new Promise(function (resolve, reject) {
 
@@ -273,7 +273,7 @@ exports.getAddress = function(id, context) {
 
 }
 
-exports.setAddress = function(id, new_a1, new_a2, new_city, new_state, new_zip, context) {
+exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip, context) {
         let functionNAme = "setAddress"
         let customersdo = new cdo.CustomersDAO();
 
@@ -288,6 +288,7 @@ exports.setAddress = function(id, new_a1, new_a2, new_city, new_state, new_zip, 
             state: new_state,
             zip: new_zip
         }
+        //@TODO: validate address with smartystreets
 
         return new Promise(function(resolve, reject) {
             customersdo.update(template, updates, context).then(
