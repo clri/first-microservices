@@ -4,9 +4,9 @@
   <title>ShopMore</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="../bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -131,16 +131,6 @@
   <a href="/categories">Shop By Category</a>
 </div>
 
-<!-- Profile details from customer -->
-<div id="profile_info" >
-  <center>
-    <br />
-    <div id="profile_info_uid">User ID: </div>
-    <div id="profile_info_name">Name: </div>
-    <div id="profile_info_email">Email: </div>
-  </center>
-</div>
-
 <!-- Profile details from order -->
 <div id="orders_info" >
   <center>
@@ -186,45 +176,30 @@
 
   function getProfileOrders(usid) {
     var my_url = window.location.href.split("/");
-    var profile_id = my_url[my_url.length - 1];
+    var order_id = my_url[my_url.length - 1];
+    var user_id = my_url[my_url.length - 2];
 
     if (!usid) {
             usid = 'null';
     }
 
-    var link = '/customers/' + profile_id;
-    $.get(link)
-      .done(function(resp) {
-         $('#profile_info_uid').html("User ID: " + resp.id);
-         $('#profile_info_name').html("Name: " + resp.firstName + " " + resp.lastName);
-         $('#profile_info_email').html("Email: " + resp.email);
-    });
-
-    var link2 = '/orders/' + profile_id;
-    var link3 = '';
+    var link2 = '/orders/' + user_id + '/' + order_id;
     $.get(link2)
       .done(function(resp) {
          console.log(resp);
          var lis = '';
-         for (var itme in resp) {
-                 let itm = resp[itme]
-                 console.log(itm);
-                 var firstprod = itm.items[0];
-                 //link3 = '/products/' + firstprod;
-                 lis += "<li>";
-                 lis += "Order ID: <a href=\"/order/" + profile_id + "/" + itm.id
-                        + "\">" + itm.id + "</a>";
-                 lis += "<br />" + "Order Date: " + itm.created;
-                 //lis += "<br />" + "Items include: <br />" //+ "pictures to be added..."
-                 /*$.get(link3).done(function(respo) {
-                         console.log(respo);
-                         lis += "<a href=\"" + respo.img_url + "\"></a>"
-                 })*/
-                 lis += "</li>";
+         var itm = resp
+         lis += "Order ID: " + itm.id;
+         lis += "<br />" + "Order Date: " + itm.created;
+         lis += "<br />" + "Items include: <br />" //+ "pictures to be added..."
+         for (var i = 0; i < itm.imgs.length; i++) {
+                 lis += "<a href=\"" + "/product/" + itm.img_key[i] + "\">"
+                        + "<img src=\"" + itm.imgs[i] + "\"></img></a><br/>;"
          }
+         //image hrefs from source
+
          $('#orders_order').html(lis);
-         //@TODO: when we have products working, get each product by ID
-         //so we can display the images/names
+
     });
   }
 

@@ -55,6 +55,10 @@ app.use('/', function(req, res, next) {
          ordersRouter.get_by_id(req, resp, next);
  });
 
+ app.get('/orders/:id/:oid', function(req, resp, next) {
+         ordersRouter.get_by_oid(req, resp, next);
+ });
+
 app.use('/', indexRouter);
 app.get('/customers/:id', function(req, resp, next) {
   //customersRouter.get_by_id(req, resp, next, w_manager);

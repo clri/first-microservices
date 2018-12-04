@@ -16,6 +16,10 @@ router.get('/profile/:profileID', function(req, res, next) {
   res.sendFile("profile.html", {root: path.join(__dirname, "../public")})
 });
 
+router.get('/order/:profileID/:orderID', function(req, res, next) {
+  res.sendFile("order.html", {root: path.join(__dirname, "../public")})
+});
+
 router.get('/product/:productID', function(req, res, next) {
   res.sendFile("product.html", {root: path.join(__dirname, "../public")})
 });
