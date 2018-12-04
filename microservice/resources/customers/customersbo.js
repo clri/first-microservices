@@ -250,3 +250,56 @@ exports.updatePassword = function(cid, new_password, context) {
     });
 
 };
+
+exports.getAddress = function(id, context) {
+        let functionNAme = "getAddress"
+        let customersdo = new cdo.CustomersDAO();
+        let fields = ['address1', 'address1', 'city', 'state', 'zip']
+
+        return new Promise(function (resolve, reject) {
+
+            customersdo.retrieveById(id, fields, context).then(
+                function (result) {
+                    console.log(result);
+                    result = filter_response_fields(result, context);
+                    resolve(result);
+                },
+                function (error) {
+                    logging.error_message(moduleName + functionName + "jerrorn = ", error);
+                    reject(return_codes.codes.internal_error);
+                }
+            )
+        });
+
+}
+
+exports.setAddress = function(id, new_a1, new_a2, new_city, new_state, new_zip, context) {
+        let functionNAme = "setAddress"
+        let customersdo = new cdo.CustomersDAO();
+
+        let template = {
+            //where: {id: cid}
+            id: cid
+        }
+        let updates = {
+            address1: new_a1,
+            address2: new_a2,
+            city: new_city,
+            state: new_state,
+            zip: new_zip
+        }
+
+        return new Promise(function(resolve, reject) {
+            customersdo.update(template, updates, context).then(
+                function(success) {
+                    resolve(success);
+                },
+                function(error) {
+                    logging.debug_message("customersbo.update error: ", error);
+                    reject(error);
+                }
+            ).catch(function(exc) {
+                logging.debug_message("customersbo.update exception: ", exc);
+            });
+        });
+}

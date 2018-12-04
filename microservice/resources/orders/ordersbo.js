@@ -26,7 +26,7 @@ var apigClient = apigClientFactory.newClient({
 
 // Business logic may dictate that not all parameters are queryable.
 // This should probably be part of a configurable framework that all BOs and use.
-let validQParams = ['lastName', 'firstName', 'email', 'status'];
+let validQParams = ['id', 'customer', 'items', 'totalPrice'];
 let validateQueryParameters = function(template, context) {
     // We would ONLY filter  values if this is not an internal, admin request.
     if (context.adminOperation) {
@@ -47,14 +47,15 @@ let validateQueryParameters = function(template, context) {
 //@TODO: implement (make sure all required fields aside from date/custid are there)
 let validateCreateData = function(data, context) {
     // make sure necessary fields are there
+    let ans = 0.0
     if (! (data.hasOwnProperty('id') && data.hasOwnProperty('customer') &&
         data.hasOwnProperty('items') )) {
-                return false;
+                return -1;
         }
     //make sure unnecessary fields are not there
     for (var attr in data) {
             if (['id', 'customer', 'items'].includes(attr) == false) {
-                    return false;
+                    return -1;
             }
     }
     //@TODO: foreign key relationship to products
@@ -66,33 +67,38 @@ let validateCreateData = function(data, context) {
     };
 
     logging.debug_message("AAAAAA*******AAAAAAA")
+
+    return new Promise(function (resolve, reject) {
     apigClient.invokeApi(paramz, '/validateOrders', 'GET', bodyy, adpar)
     .then(function(result){
             lans = result['data'];
-            //logging.debug_message(lans);
+            logging.debug_message("BBBBBBBBB");
+            logging.debug_message(lans);
             if (lans['valid'] == 0) {
-                    return false;
+                    resolve(-1);
             } else {
-                    data['totalPrice'] = lans['totalPrice'];
+                    ans = lans['totalPrice'];
             }
+            customersbo.retrieveById(data['customer'], ['id'], context).then(
+                function(result) {
+                    resolve(ans);
+                })
+                .catch(
+                    function(error) {
+                            logging.debug_message('1');
+                        resolve(-1);
+                    }
+                );
     }).catch( function(err){
             logging.debug_message(err);
-            return false;
+            resolve(-1);
     });
+});
 
 
     //make sure the customer is a valid customer
-    customersbo.retrieveById(data['customer'], ['id'], context).then(
-        function(result) {
-                logging.debug_message('124');
-            return true;
-        })
-        .catch(
-            function(error) {
-                    logging.debug_message('1');
-                return false;
-            }
-        );
+
+    //return ans;
 };
 
 // Fields to return from queries from non-admins.
@@ -159,14 +165,18 @@ exports.create = function(data, context) {
 
 
     return new Promise(function (resolve, reject) {
-        logging.debug_message('1');
+        logging.debug_message('^^^^^^^^^^^^^^^^^^');
         data['id'] = uuid();
-        logging.debug_message('2');
 
-        if (validateCreateData(data, context) == false) {
+        validateCreateData(data, context).then(function(result) {
+        let tp = result
+        logging.debug_message(tp)
+
+        if (tp == -1) {
             reject(return_codes.codes.invalid_create_data);
         }
         else {
+            data.totalPrice = tp
             oitms = []
             for (var ii = 0; ii < data['items'].length; ii++) {
                     oitms.push(data['items'][ii].toString())
@@ -186,6 +196,7 @@ exports.create = function(data, context) {
                 }
             );
         }
+});
 
     });
 };
