@@ -32,9 +32,9 @@ let CartDAO = function() {
     self.columnToColumn2 = function(data) {
             var data2 = {}
             //logging.debug_message(data);
-            for (var attr in ordersCollection.attributes) {
-                    if (data.hasOwnProperty(ordersCollection.attributes[attr]['columnName'])) {
-                            data2[attr] = data[ordersCollection.attributes[attr]['columnName']];
+            for (var attr in cartCollection.attributes) {
+                    if (data.hasOwnProperty(cartCollection.attributes[attr]['columnName'])) {
+                            data2[attr] = data[cartCollection.attributes[attr]['columnName']];
                     }
             }
             if (data.hasOwnProperty('createdAt')) {
@@ -44,11 +44,23 @@ let CartDAO = function() {
             return data2;
     }
 
+    self.columnToColumn = function(data) {
+            var data2 = {}
+            //logging.debug_message(data);
+            for (var attr in cartCollection.attributes) {
+                    if (data.hasOwnProperty(attr)) {
+                            data2[cartCollection.attributes[attr]['columnName']] = data[attr]
+                    }
+            }
+            logging.debug_message(data2);
+            return data2;
+    }
+
     self.fieldToField = function(fields) {
             var fields2 = []
-            for (var field in ordersCollection.attributes) {
+            for (var field in cartCollection.attributes) {
                     if (fields.includes(field)) {
-                            fields2.push(ordersCollection.attributes[field]['columnName'])
+                            fields2.push(cartCollection.attributes[field]['columnName'])
                     }
             }
             if (fields.includes('created')) {
@@ -120,13 +132,35 @@ let CartDAO = function() {
 
     // MUST IMPLEMENT THIS
     self.update = function(template, fields, context) {
-            
+            return new Promise(function (resolve, reject) {
+                // Add tenant_id to template.
+                template.tenant_id = context.tenant;
+                self.theDao.update(self.columnToColumn(template), self.columnToColumn(fields)).then(
+                        function(res) {
+                                logging.debug_message("CART UPDATE" + res);
+
+                        }, function(err) {
+                                logging.debug_message(err);
+                        })
+
+        })
              //throw "Not implemented";
     };
 
     // MUST IMPLEMENT THIS
     self.delete = function(template, context) {
-             throw "Not implemented";
+            return new Promise(function (resolve, reject) {
+                // Add tenant_id to template.
+                template.tenant_id = context.tenant;
+                self.theDao.delete(self.columnToColumn(template)).then(
+                        function(res) {
+                                logging.debug_message("CART DELETE" + res);
+
+                        }, function(err) {
+                                logging.debug_message(err);
+                        })
+
+        })
     };
 
 }

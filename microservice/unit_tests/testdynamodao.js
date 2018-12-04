@@ -140,12 +140,48 @@ const test7= function() {
             });
 };
 
+const test9 = function() {
+        let tmp = {
+                id: "js123",
+                customers_id : "js12"
+        }
+        testDao.delete(tmp).then(
+                function(rows) {
+                    logging.debug_message("Test 9 results = " + rows);
+                })
+                .catch(
+                    function(error) {
+                        logging.error_message("Test 9 error = " + error);
+                    });
+}
+
+const test10 = function() {
+        let tmp = {
+                id: "lm11",
+                customers_id : "Messi"
+        }
+        let upda = {
+                orders_items: ['a', 'b']
+        }
+        testDao.update(tmp, upda).then(
+                function(rows) {
+                    logging.debug_message("Test 10 results = " + rows);
+                })
+                .catch(
+                    function(error) {
+                        logging.error_message("Test 10 error = " + error);
+                    });
+}
+
+
 //@TODO: add more unit tests
 
-test1();
+//test1();
 //test2();
 //test4();
 //test5();
 //test6();
 //test7();
 //test8();
+//test9();
+test10();
