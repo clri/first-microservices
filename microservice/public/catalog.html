@@ -188,7 +188,7 @@
                     console.log(resp)
                     for (var i = 0; i < resp.length; i++) {
                             var itme = resp[i]
-                            lis += "<li>"
+                            lis += "<br /><br /><br /><li>"
                             lis += "Product ID: " + itme.id + "<br />"
                             lis += "Name: <a href=\"/product/" + itme.id + "\">" + itme.name + "</a><br />"
                             lis += "Description: " + itme.description + "<br />"
@@ -203,7 +203,7 @@
             $.get('/shop/' + itm_id).done(function(resp) {
                     for (var i = 0; i < resp.length; i++) {
                             var itme = resp[i]
-                            lis += "<li>"
+                            lis += "<br /><br /><br /><li>"
                             lis += "Product ID: " + itme.id + "<br />"
                             lis += "Name: <a href=\"/product/" + itme.id + "\">" + itme.name + "</a><br />"
                             lis += "Description: " + itme.description + "<br />"
