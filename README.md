@@ -19,6 +19,9 @@ To view a particular product: localhost:3000/product/<productid>
 To view all categories: localhost:3000/categories
 To view an order: localhost:3000/order/<userid>/<orderid>
 
-
 ### AWS
-[Home](http://projectmicroservices-env.bqatz8n38a.us-east-1.elasticbeanstalk.com/home/)
+
+[Home](http://d27dzg4gy23rtl.cloudfront.net)
+
+[Beanstalk](http://projectmicroservices-env.bqatz8n38a.us-east-1.elasticbeanstalk.com/home/)
+
