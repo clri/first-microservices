@@ -48,13 +48,10 @@ let convertFromDate = function(r) {
     return r;
 };
 
-let theDao = new Dao.Dao(productCollection);
-
-
 let ProductDAO = function() {
 
     // Make a DAO and initialize with the collection metadata.
-    this.theDao = theDao;
+    this.theDao = new Dao.Dao(productCollection);
     let self = this;
 
     this.retrieveById = function(id,  fields, context) {
