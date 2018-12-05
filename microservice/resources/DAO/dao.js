@@ -20,11 +20,6 @@ logging.debug_message("environment_name = ", environment_name);
 let db_info = env.getEnv(environment_name)
 logging.debug_message("s_env = ", db_info);
 
-
-let waterline = new Waterline();
-// Ontology = DB info
-let ontology = null;
-
 // Waterline config
 let global_config = {
     adapters: {
@@ -41,60 +36,126 @@ let global_config = {
 };
 
 
-// A collection is how Waterline says "Table."
-// We are registering the metadata on the table.
-let registerCollection = function(c) {
-    let wCollection = Waterline.Collection.extend(c);
-    waterline.registerModel(wCollection);
+let customersCollection = {
+    identity: 'customers',
+    datastore: 'default',
+    primaryKey: 'id',
+
+    attributes: {
+        id: {type: 'string', required: true, columnName: 'customers_id'},
+        lastName: {type: 'string', required: true, columnName: "customers_lastname"},
+        firstName: {type: 'string', required: true, columnName: "customers_firstname"},
+        email: {type: 'string', required: true, columnName: "customers_email"},
+        status: {type: 'string', required: true, columnName: 'customers_status'},
+        pw: {type: 'string', required: true, columnName: 'customers_password'},
+        address1: {type: 'string', required: false, allowNull: true, columnName: `customers_address_line1`},
+        address2: {type: 'string', required: false, allowNull: true, columnName: `customers_address_line2`},
+        city: {type: 'string', required: false, allowNull: true, columnName: `customers_city`},
+        state: {type: 'string', required: false, allowNull: true, columnName: `customers_state`},
+        zip: {type: 'string', required: false, allowNull: true, columnName: `customers_zip`},
+        last_login: {type: 'number', required: true, columnName: 'customers_last_login'},
+        created: {type: 'number', required: true, columnName: 'customers_created'},
+        modified: {type: 'number', required: true, columnName: 'customers_modified'},
+        tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
+    }
 };
 
+// Metadata that defines the collection.
+let cartCollection = {
+    identity: 'E6156_cart',
+    datastore: 'dynamo',
+    primaryKey: 'customers_id', //actually the hash key
+    rangeKey: 'id',
 
-// You need the Ontology to get the collection to perform an operation.
-// This MAY talk to the DB engine and Waterline, and hence can go asynchronous.
-// Ontology is an off word to use.
-//
-let getOntology = function() {
-    "use strict";                                           // Not sure how important this "strict" stuff is.
-    return new Promise(function (resolve, reject) {
-        if (ontology) {                                     // Have I retrieved and cached the ontology?
-            //logging.debug_message("getOntology1: " + ontology);
-            resolve(ontology);
+    attributes: {
+        id: {type: 'string', required: true, columnName: 'id'},
+        customer: {type: 'string', required: true, columnName: "customers_id"},
+        items: {type: 'json', required: true, columnName: 'cart_items'},
+        tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
+    }
+};
+
+// Metadata that defines the collection.
+let ordersCollection = {
+    identity: 'E6156_orders',
+    datastore: 'dynamo',
+    primaryKey: 'customers_id', //actually the hash key
+    rangeKey: 'id',
+
+    attributes: {
+        id: {type: 'string', required: true, columnName: 'id'},
+        customer: {type: 'string', required: true, columnName: "customers_id"},
+        /*product: {type: 'number', required: true, columnName: "product_id"},
+        quantity: {type: 'number', required: true, columnName: "orders_quantity"},*/
+        items: {type: 'json', required: true, columnName: 'orders_items'},
+        totalPrice: {type: 'number', required: true, columnName: 'orders_totalprice'},
+        //tax: {type: 'number', required: true, columnName: 'orders_tax'},
+        //shipping: {type: 'number', required: true, columnName: 'product_quantity_stocked'},
+        tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
+        //created: autotimestameped by dynamo
+    }
+};
+
+let productCollection = {
+    identity: 'product',
+    datastore: 'default',
+    primaryKey: 'id',
+
+    attributes: {
+        id: {type: 'number', required: true, columnName: 'product_id'},
+        name: {type: 'string', required: true, columnName: "product_name"},
+        description: {type: 'string', required: true, columnName: "product_description"},
+        category: {type: 'string', required: true, columnName: "product_category"},
+        price: {type: 'number', required: true, columnName: "product_price"},
+        img_url: {type: 'string', required: true, columnName: 'product_image_url'},
+        //created: {type: 'number', required: true, columnName: 'product_created'},
+        modified: {type: 'number', required: true, columnName: 'product_modified'},
+        tenant_id: {type: 'string', required: true, columnName: 'tenant_id'}
+    }
+};
+
+let waterline = new Waterline();
+let ontology = null;
+let cacheOntology = function(o) {
+    ontology = o;
+    console.log("Cached Ontology: " + ontology);
+}
+let registerModels = function() {
+    let known_collections = [customersCollection, productCollection];
+    for(var i = 0; i < known_collections.length; i++) {
+        var c = known_collections[i];
+        var m = Waterline.Collection.extend(c);
+        waterline.registerModel(m);
+        console.log("Registering collection: ", c.identity);
+    }
+    waterline.initialize(global_config, function (err, result) {
+        if (err) {
+            logging.error_message("Error =", err);
+            if(err.raw) {
+                logging.error_message(err.raw);
+            }
         }
         else {
-            // Ontology uses callbacks. Call initialize and resolve Promise based on the response.
-            waterline.initialize(global_config, function (err, result) {
-                if (err) {
-                    logging.error_message("Error =", err);
-                    reject(err);
-                }
-                else {
-                    //logging.debug_message("Setting ontology = ", null);
-                    ontology = result;
-                    resolve(ontology);
-                }
-            });
+            cacheOntology(result);
         }
     });
-};
+}
+registerModels();
 
-// Given the name (identity) of a collection that represents a table, return it.
-// This may go asynch.
 //
-// @TODO: move to DAO class (getbyQ, etc as well)
 let getCollection =  function(id) {
 
     return new Promise(function(resolve, reject) {
-        getOntology(global_config).then(
-            function (result) {
-                "use strict";
-                //console.log("Collection identity = " + id);
-                resolve(result.collections[id]);
-            },
-            function (err) {
-                "use strict";
-                logging.error_message("Error = " + err);
-                reject(err);
-            });
+        console.log("Ontology: ", ontology);
+        console.log("Collections: ", ontology.collections);
+        if(ontology.collections[id]) {
+            resolve(ontology.collections[id]);    
+        }
+        else {
+            var err = "Error = Collection " + id.toString() + " not found";
+            logging.error_message();    
+            reject(err);
+        }
     });
 };
 
@@ -107,7 +168,7 @@ let getByQ = function(id, q, fields) {
     return new Promise(function (resolve, reject) {
         getCollection(id).then(
             function (result) {
-                logging.debug_message(result);
+                logging.debug_message("Ontology: " + result);
                 if (fields) {
                     resolve(result.find({"where": q, "select": fields}));
                 }
@@ -178,7 +239,7 @@ let Dao = function(collection) {
 
     self.collection = collection;                       // Configuration information.
 
-    registerCollection(this.collection);                // Register config information with Waterline.
+    // registerCollection(this.collection);                // Register config information with Waterline.
 
     // Retrieve by a single column, primary key.
     // Probably should add support for multi-column primary keys.
