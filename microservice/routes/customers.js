@@ -50,7 +50,7 @@ let map_response = function(e, res) {
             // 201 -- created.
             // A link to the thing created. This should probably be in a links header..
             e.resource = "customers";
-            let url = "/" + e.resource + "/" + e.id;
+            let url = "/api/" + e.resource + "/" + e.id;
             let links = [];
             links.push({rel: "self", href: url});
             let result = { msg: "Created", links: links };
@@ -67,7 +67,7 @@ let map_response = function(e, res) {
         // Basically, same logic as above but for login, which is also a POST.
         case return_codes.codes.login_success.code: {
             e.resource="customers";
-            let url = "/" + e.resource + "/" + e.id;
+            let url = "/api/" + e.resource + "/" + e.id;
             let links = [];
             links.push({rel: "self", href: url});
             let result = { msg: "LoggedIn", links: links };
