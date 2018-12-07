@@ -1,19 +1,14 @@
 /**
  * Adapted from file created by donaldferguson on 8/16/18.
  */
-
-// NPM packages for Waterline and connection to MySQL
 let Waterline = require('waterline');
 let dbAdaptor = require('sails-mysql');
 
-// Simple utility packages that I use.
 let logging = require('../../lib/logging');         // Should replace with Winston or similar.
 let env = require('../../env');                     // Simple config info based on an environment variable.
 let return_codes = require('../return_codes');      // Application standardized RCs.
 
-// Ad hoc approach to getting information based on running local, beanstalk, etc.
-// eb2_environment is the name of the environment variable.
-let environment_name = 'beanstalk'; //process.env.eb2_environment; @TODO: set this up
+let environment_name = process.env.environment_name; 
 logging.debug_message("environment_name = ", environment_name);
 
 // Use the environment variable to get the information about DB conn based on environment.
