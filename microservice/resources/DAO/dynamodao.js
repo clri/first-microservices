@@ -104,12 +104,14 @@ let DynDao = function(collection) {
 
     //IMPLEMENT
     self.update = function(template, updates) {
+            var that = this;
+
             for (var attr in updates) {
                     template[attr] = updates[attr]
             }
             var that = this;
             return new Promise(function(resolve, reject) {
-                    that.table.updateAsync(self.columnToColumn(template)).then(
+                    that.table.updateAsync(that.columnToColumn(template)).then(
                             function(res) {
                                     logging.debug_message("SUCCESS UPDATE" + res);
 
@@ -124,7 +126,7 @@ let DynDao = function(collection) {
     self.delete = function(template) {
             var that = this;
            return new Promise(function(resolve, reject) {
-                   that.table.destroyAsync(self.columnToColumn(template)).then(
+                   that.table.destroyAsync(that.columnToColumn(template)).then(
                            function(res) {
                                    logging.debug_message("SUCCESS DETROY" + res);
 
@@ -138,9 +140,10 @@ let DynDao = function(collection) {
 
     self.create = function(data) {
 
+            var that = this;
         //map attributes to correct columns
         logging.debug_message("column to columning");
-        var data2 = this.columnToColumn(data);
+        var data2 = that.columnToColumn(data);
         logging.debug_message("Eh")
         /*{}
         for (var attr in data) {
@@ -148,7 +151,7 @@ let DynDao = function(collection) {
                 data2[cname] = data[attr];
         }*/
         logging.debug_message(data2);
-        var that = this;
+
 
         return new Promise(function(resolve, reject) {
             that.table.createAsync(data2).then(

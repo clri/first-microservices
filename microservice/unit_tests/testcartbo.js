@@ -3,12 +3,12 @@
  */
 
 const logging = require('../lib/logging');
-const obo = require('../resources/orders/ordersbo');
+const cbo = require('../resources/cart/cartbo');
 
 let context = { tenant: "E6156"};
 
 let testB1 = function() {
-    obo.retrieveById('sulu1', ['id'], context).then(
+    cbo.retrieveById('sulu1', ['id'], context).then(
         function(result) {
             logging.debug_message("result = ", result);
         })
@@ -24,8 +24,13 @@ let test_create = {
     items: [1, 2]/*['item1', 'item2']*/
 };
 
+let test_update = {
+    customer: 'sulu1',
+    items: [4, 5]/*['item1', 'item2']*/
+};
+
 let testB2 = function(d) {
-    obo.create(d, context).then(
+    cbo.addToCart(d, context).then(
         function(result) {
             logging.debug_message("result = ", result);
         })
@@ -37,4 +42,5 @@ let testB2 = function(d) {
 };
 
 //testB1();
-testB2(test_create);
+//testB2(test_create);
+testB2(test_update);
