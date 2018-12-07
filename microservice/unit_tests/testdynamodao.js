@@ -142,8 +142,8 @@ const test7= function() {
 
 const test9 = function() {
         let tmp = {
-                id: "js123",
-                customers_id : "js12"
+                id: "js1234",
+                customer : "js12"
         }
         testDao.delete(tmp).then(
                 function(rows) {
@@ -158,10 +158,10 @@ const test9 = function() {
 const test10 = function() {
         let tmp = {
                 id: "lm11",
-                customers_id : "Messi"
+                customer : "Messi"
         }
         let upda = {
-                orders_items: ['a', 'b']
+                items: ['a', 'b', 'c']
         }
         testDao.update(tmp, upda).then(
                 function(rows) {

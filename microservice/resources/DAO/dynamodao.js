@@ -109,7 +109,7 @@ let DynDao = function(collection) {
             }
             var that = this;
             return new Promise(function(resolve, reject) {
-                    that.table.updateAsync(template).then(
+                    that.table.updateAsync(self.columnToColumn(template)).then(
                             function(res) {
                                     logging.debug_message("SUCCESS UPDATE" + res);
 
@@ -124,7 +124,7 @@ let DynDao = function(collection) {
     self.delete = function(template) {
             var that = this;
            return new Promise(function(resolve, reject) {
-                   that.table.destroyAsync(template).then(
+                   that.table.destroyAsync(self.columnToColumn(template)).then(
                            function(res) {
                                    logging.debug_message("SUCCESS DETROY" + res);
 

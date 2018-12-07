@@ -135,7 +135,7 @@ let CartDAO = function() {
             return new Promise(function (resolve, reject) {
                 // Add tenant_id to template.
                 template.tenant_id = context.tenant;
-                self.theDao.update(self.columnToColumn(template), self.columnToColumn(fields)).then(
+                self.theDao.update(template, fields).then(
                         function(res) {
                                 logging.debug_message("CART UPDATE" + res);
 
@@ -152,7 +152,7 @@ let CartDAO = function() {
             return new Promise(function (resolve, reject) {
                 // Add tenant_id to template.
                 template.tenant_id = context.tenant;
-                self.theDao.delete(self.columnToColumn(template)).then(
+                self.theDao.delete(template).then(
                         function(res) {
                                 logging.debug_message("CART DELETE" + res);
 
