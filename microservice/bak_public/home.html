@@ -59,6 +59,7 @@
           </div>
           <button id = "btn_login" type="button" class="btn btn-primary">Submit</button>
           <button id="btn_reset" type="button" class="btn btn-warning">Reset Password</button>
+          <div class="g-signin2" data-onsuccess="onSignIn"></div>
         </form>
         <div class="alert alert-primary d-none mt-sm-4" role="alert" id="login_resp"></div>
       </div>
@@ -96,7 +97,6 @@
             <input type="password" name = "pw" class="form-control" id="reg_user_password" placeholder="Password">
           </div>
           <button id = "btn_register" type="button" class="btn btn-primary">Submit</button>
-          <div class="g-signin2" data-onsuccess="onSignIn"></div>
           <div class="alert alert-primary d-none mt-sm-4" role="alert" id="register_resp"></div>
         </form>
       </div>
@@ -137,21 +137,24 @@
 <script type="text/javascript">
 
 
-  function onSignIn(googleUser) {
+function onSignIn(googleUser) {
     var profile = googleUser.getBasicProfile();
-    var full_name = profile.getName();
-    var first_name = full_name.split(" ")[0];
-    var last_name = full_name.split(" ").slice(1).join(" ");
-    var email_address = profile.getEmail();
-
-    $('#register_form #user_first_name').val(first_name);
-    $('#register_form #user_last_name').val(last_name);
-    $('#register_form #reg_user_email_address').val(email_address);
-    $('#register_form #reg_user_password').val('password');
-    // console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-    // console.log('Name: ' + profile.getName());
-    // console.log('Image URL: ' + profile.getImageUrl());
-    // console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    $.post('/api/tokenlogin', {"token": googleUser.getAuthResponse().id_token, "password": profile.getId()})
+    .done(
+      function(response) {
+        var full_name = profile.getName();
+        var first_name = full_name.split(" ")[0];
+        var last_name = full_name.split(" ").slice(1).join(" ");
+        var user = {
+          firstName: first_name,
+          lastName: last_name
+        }
+        setUser(user);
+      }
+    )
+    .fail(function() {
+      $('#login_resp').removeClass('d-none').html("Forbidden: Invalid credentials");
+    });
   }
   function createCookie(name,value,days) {
     if (days) {
