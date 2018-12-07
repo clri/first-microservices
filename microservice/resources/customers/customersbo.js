@@ -160,7 +160,7 @@ exports.create = function(data, context) {
     return new Promise(function (resolve, reject) {
 
         data.id = generateId(data.lastName, data.firstName);
-        data.status = "PENDING";
+        // data.status = "PENDING";
 
         let email = data.email;
         logging.debug_message(data);

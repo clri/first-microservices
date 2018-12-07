@@ -152,6 +152,28 @@ let login = function(req, res, next) {
     });
 };
 
+let tokenLogin = function(req, res, next) {
+    let functionName = "tokenLogin: "
+
+    let data = req.body;
+    var admop = 0;
+    let context = {tenant: req.tenant, adminOperation: admop};
+
+    login_registration.tokenLogin(data, context).then(
+        function(result) {
+            // map_response(result, res);
+            res.status(200).json(result);
+        },
+        function(error) {
+            logging.error_message(moduleName + functionName + " error = ", error);
+            res.status(500).json(error);
+        }
+    ).catch(function(exc) {
+        logging.error_message(moduleName + functionName + " exception = ", exc);
+        res.status(500).json(exc);
+    });
+};
+
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -412,6 +434,7 @@ exports.get_by_query = get_by_query;
 exports.post = post;
 exports.register = register;
 exports.login = login;
+exports.tokenLogin = tokenLogin;
 exports.passreset = passreset;
 exports.passresetreq = passresetreq;
 exports.activate_account = activate_account;

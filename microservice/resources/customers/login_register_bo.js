@@ -1,5 +1,8 @@
 const hash = require('../../lib/salthash');
 const cbo =  require('./customersbo');
+const {OAuth2Client} = require('google-auth-library');
+const gclient = new OAuth2Client(process.env.client_id);
+
 let crypto = require('crypto');
 
 
@@ -11,6 +14,9 @@ let mail = require('../../mail');
 
 // We will discuss the concept of middleware later in this lecture.
 let security = require('../../middleware/security');
+let env = require('../../env');
+let environment_name = process.env.environment_name;
+let base_url = env.getEnv(environment_name).base_url;
 
 
 
@@ -74,6 +80,126 @@ exports.login =  function(d, context) {
     });
 };
 
+
+exports.tokenLogin =  function(d, context) {
+
+    return new Promise(function(resolve, reject){
+        
+        // verify the token first
+        gclient.verifyIdToken({
+            idToken: d["token"],
+            audience: process.env.client_id
+        })
+        .then(function(ticket){
+            const payload = ticket.getPayload();
+            const userid = payload['sub'];
+            console.log(payload);
+            console.log("Received token login request from " + userid);
+            console.log("Password received: " + d["password"]);
+            console.log("Audience: " + payload["aud"]);
+            console.log("iss: " + payload["iss"]);
+
+            if(payload["aud"] !== process.env.client_id) {
+                reject("This Client doesn't have privilige to verify tokens");
+            }
+            if(payload["iss"] !== "accounts.google.com") {
+                reject("Invalid ISS found");
+            }
+            if(payload["sub"] !== d["password"]) {
+                reject("Incorrect password found");
+            }
+
+
+            // create the user in the database
+            var user = {
+                email: payload["email"],
+                lastName: payload["family_name"],
+                firstName: payload["given_name"],
+                pw: d["password"]
+            }
+            if(payload["email_verified"] == true) {
+                user.status = "ACTIVE";
+            }
+            else {
+                user.status = "PENDING";
+            }
+
+            cbo.retrieveByEmail(user["email"], ["*"], context)
+            .then(function(c) {
+                if(c && c.length > 0) {
+                    let new_result = return_codes.codes.login_success;
+                    let claim = security.generate_customer_claims(c, context);
+                    console.log("Returning register token = " + JSON.stringify(claim, null, 2));
+                    new_result.token = claim;
+                    new_result.resource = "customers";
+                    new_result.id = c.id;
+
+
+                    console.log("Trying to create google customer");
+                    console.log(c);
+
+                    if(c.status == "PENDING") {
+                        // add the logic to generate an activation link here
+                        let random_nonce = getRandomInt(Date.now());
+                        let sha = crypto.createHash('sha1');
+                        let activation_token = sha.update(d_email + random_nonce).digest('hex');
+                        new_result.activation_token = activation_token;
+
+                        // insert this (token, cid) pair in the data store 1
+                        email_activation.insert_activation_token(rclient, activation_token, d_email);
+                            mail.sendActivationEmail(base_url + '/api/activateEmail/' + activation_token, d_email);    
+                    }
+                    
+
+                    resolve(new_result);
+                }
+                else { // create a user if it doesn't exist
+                    cbo.create(user, context).then(
+                        function(c) {
+
+                            let new_result = return_codes.codes.login_success;
+                            let claim = security.generate_customer_claims(c, context);
+                            console.log("Returning register token = " + JSON.stringify(claim, null, 2));
+                            new_result.token = claim;
+                            new_result.resource = "customers";
+                            new_result.id = c.id;
+
+
+                            console.log("Trying to create google customer");
+                            console.log(c);
+                            
+                            if(c.status == "PENDING") {
+                                // add the logic to generate an activation link here
+                                let random_nonce = getRandomInt(Date.now());
+                                let sha = crypto.createHash('sha1');
+                                let activation_token = sha.update(d_email + random_nonce).digest('hex');
+                                new_result.activation_token = activation_token;
+
+                                // insert this (token, cid) pair in the data store 1
+                                email_activation.insert_activation_token(rclient, activation_token, d_email);
+                                mail.sendActivationEmail(base_url + '/api/activateEmail/' + activation_token, d_email);    
+                            }
+
+                            resolve(new_result);
+                        },
+                        function(error) {
+                            logging.error_message("logonbo.register: error = " + error);
+                            reject(error);
+                        }
+                    )  ;      
+                }
+            })
+            .catch(function(exception) {
+                 reject("Exception: " + exception);
+            });
+            
+        })
+        .catch(function(exception) {
+            reject("Exception: " + exception);
+        });
+    });
+};
+
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -102,7 +228,7 @@ exports.register =  function(d, context, rclient) {
 
                 // insert this (token, cid) pair in the data store 1
                 email_activation.insert_activation_token(rclient, activation_token, d_email);
-                mail.sendActivationEmail('localhost:3000/activateEmail/' + activation_token, d_email);
+                mail.sendActivationEmail(base_url + '/api/activateEmail/' + activation_token, d_email);
 
                 resolve(new_result);
             },
