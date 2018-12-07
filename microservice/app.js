@@ -90,6 +90,10 @@ app.post('/api/login', function(req, resp, next) {
   customersRouter.login(req, resp, next);
 });
 
+app.post('/api/tokenlogin', function(req, resp, next) {
+  customersRouter.tokenLogin(req, resp, next);
+});
+
 app.post('/api/passresetreq', function(req, resp, next) {
   //customersRouter.passresetreq(req, resp, next, w_manager, rclient0);
   customersRouter.passresetreq(req, resp, next, rclient0);
