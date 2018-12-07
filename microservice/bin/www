@@ -13,6 +13,7 @@ var http = require('http');
  */
 
 var port = normalizePort(process.env.PORT || '3000');
+console.log("Node running on port: ", port.toString());
 app.set('port', port);
 
 /**

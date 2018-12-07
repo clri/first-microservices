@@ -4,9 +4,9 @@
   <title>ShopMore</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="catalog/bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="catalog/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -126,30 +126,21 @@
 </div>
 
 <div id="catalog_stuff">
-  <a href="/catalog">Shop All Categories</a>
+  <a href="catalog.html">Shop All Categories</a>
   |
-  <a href="/categories">Shop By Category</a>
+  <a href="categories.html">Shop By Category</a>
 </div>
 
-<!-- Profile details from customer -->
-<div id="profile_info" >
-  <center>
-    <br />
-    <div id="profile_info_uid">User ID: </div>
-    <div id="profile_info_name">Name: </div>
-    <div id="profile_info_email">Email: </div>
-  </center>
-</div>
-
-<!-- Profile details from order -->
+<!-- Item details -->
 <div id="orders_info" >
   <center>
     <br />
-    <h4>Orders</h4>
+    <h4 id="categ_title">All Items</h4>
     <br />
-    <ul id="orders_order">No Available Orders</ul>
+    <ul id="orders_order">No Available Items</ul>
   </center>
 </div>
+
 
 <script type="text/javascript">
 
@@ -184,52 +175,63 @@
     $('#user_info_nav_group li:lt(2)').addClass("d-none");
   }
 
-  function getProfileOrders(usid) {
-    var my_url = window.location.href.split("/");
-    var profile_id = my_url[my_url.length - 1];
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
 
-    if (!usid) {
-            usid = 'null';
+  function getProfileOrders() {
+    // var my_url = window.location.href.split("/");
+    var itm_id = getParameterByName('itemid');
+    // var itm_id = my_url[my_url.length - 1];
+    // var itm_id2 = my_url[my_url.length - 2];
+    console.log(itm_id)
+
+    if (itm_id == null) {
+            //get all
+            var lis = '';
+            $.get('/api/wholecatalog').done(function(resp) {
+                    console.log(resp)
+                    for (var i = 0; i < resp.length; i++) {
+                            var itme = resp[i]
+                            lis += "<br /><br /><br /><li>"
+                            lis += "Product ID: " + itme.id + "<br />"
+                            lis += "Name: <a href=\"/product.html?prodid=" + itme.id + "\">" + itme.name + "</a><br />"
+                            lis += "Description: " + itme.description + "<br />"
+                            lis += "Price: " + itme.price + "<br />"
+                            lis += "Category: " + itme.category + "<br />"
+                            lis += "<img src=\"" + itme.img_url + "\"></img></li>"
+                    }
+                    $('#orders_order').html(lis);
+            });
+    } else {
+            var lis = '';
+            $.get('/api/shop/' + itm_id).done(function(resp) {
+                    for (var i = 0; i < resp.length; i++) {
+                            var itme = resp[i]
+                            lis += "<br /><br /><br /><li>"
+                            lis += "Product ID: " + itme.id + "<br />"
+                            lis += "Name: <a href=\"/product.html?prodid=" + itme.id + "\">" + itme.name + "</a><br />"
+                            lis += "Description: " + itme.description + "<br />"
+                            lis += "Price: " + itme.price + "<br />"
+                            lis += "Category: " + itme.category + "<br />"
+                            lis += "<img src=\"" + itme.img_url + "\"></img>"
+                    }
+                    $('#orders_order').html(lis);
+                    $('#categ_title').html(itm_id);
+            });
+
     }
 
-    var link = '/customers/' + profile_id;
-    $.get(link)
-      .done(function(resp) {
-         $('#profile_info_uid').html("User ID: " + resp.id);
-         $('#profile_info_name').html("Name: " + resp.firstName + " " + resp.lastName);
-         $('#profile_info_email').html("Email: " + resp.email);
-    });
-
-    var link2 = '/orders/' + profile_id;
-    var link3 = '';
-    $.get(link2)
-      .done(function(resp) {
-         console.log(resp);
-         var lis = '';
-         for (var itme in resp) {
-                 let itm = resp[itme]
-                 console.log(itm);
-                 var firstprod = itm.items[0];
-                 //link3 = '/products/' + firstprod;
-                 lis += "<li>";
-                 lis += "Order ID: <a href=\"/order/" + profile_id + "/" + itm.id
-                        + "\">" + itm.id + "</a>";
-                 lis += "<br />" + "Order Date: " + itm.created;
-                 //lis += "<br />" + "Items include: <br />" //+ "pictures to be added..."
-                 /*$.get(link3).done(function(respo) {
-                         console.log(respo);
-                         lis += "<a href=\"" + respo.img_url + "\"></a>"
-                 })*/
-                 lis += "</li>";
-         }
-         $('#orders_order').html(lis);
-         //@TODO: when we have products working, get each product by ID
-         //so we can display the images/names
-    });
   }
 
   $('#login_modal #btn_login').click(function() {
-    $.post('/login', $('#login_form').serialize())
+    $.post('/api/login', $('#login_form').serialize())
     .done(function(response) {
       if(response.msg == "LoggedIn") {
         var link = response.links[0].href;
@@ -249,7 +251,7 @@
 
 
   $("#register_modal #btn_register").click(function() {
-    $.post('/register', $('#register_form').serialize())
+    $.post('/api/register', $('#register_form').serialize())
     .done(function(response) {
       $('#register_resp')
       .removeClass('d-none')
@@ -262,7 +264,7 @@
   });
 
   $('#btn_pass_reset').click(function() {
-    $.post('/passresetreq', $('#pass_reset_form').serialize())
+    $.post('/api/passresetreq', $('#pass_reset_form').serialize())
     .done(function(resp) {
       $('#reset_req_result').removeClass('d-none');
       $('#reset_req_result').html(resp);
@@ -289,7 +291,7 @@
     var cookie_user_id = readCookie("user_id");
     if(cookie_user_id) {
       // a user is already logged in
-      $.get("/customers/" + cookie_user_id)
+      $.get("/api/customers/" + cookie_user_id)
       .done(function(user) {
         setUser(user);
 
@@ -299,7 +301,7 @@
         }
       });
     }
-    getProfileOrders(cookie_user_id);
+    getProfileOrders();
   });
 </script>
 

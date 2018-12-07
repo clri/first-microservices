@@ -4,9 +4,11 @@
   <title>ShopMore</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="home/bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="home/bootstrap/js/bootstrap.min.js"></script>
+  <meta name="google-signin-client_id" content="863508771289-rtovgs2emuang3ngk70mmqmnu3opomg4.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <body>
 
@@ -57,6 +59,7 @@
           </div>
           <button id = "btn_login" type="button" class="btn btn-primary">Submit</button>
           <button id="btn_reset" type="button" class="btn btn-warning">Reset Password</button>
+          <div class="g-signin2" data-onsuccess="onSignIn"></div>
         </form>
         <div class="alert alert-primary d-none mt-sm-4" role="alert" id="login_resp"></div>
       </div>
@@ -78,12 +81,12 @@
       <div class="modal-body">
         <form id="register_form">
           <div class="form-group">
-            <label for="user_first_name">Email address</label>
-            <input type="text" name="user_first_name" class="form-control" id="user_first_name" placeholder="First Name">
+            <label for="user_first_name">First Name</label>
+            <input type="text" name="firstName" class="form-control" id="user_first_name" placeholder="First Name">
           </div>
           <div class="form-group">
-            <label for="user_last_name">Email address</label>
-            <input type="text" name="user_last_name" class="form-control" id="user_last_name" placeholder="Last Name">
+            <label for="user_last_name">Last Name</label>
+            <input type="text" name="lastName" class="form-control" id="user_last_name" placeholder="Last Name">
           </div>
           <div class="form-group">
             <label for="reg_user_email_address">Email address</label>
@@ -115,7 +118,7 @@
         <form id="pass_reset_form">
           <div class="form-group">
             <label for="user_email">Email address</label>
-            <input type="text" name="user_email" class="form-control" id="user_email">
+            <input type="text" name="email" class="form-control" id="user_email">
           </div>
           <button id = "btn_pass_reset" type="button" class="btn btn-primary">Submit</button>
         </form>
@@ -126,27 +129,33 @@
 </div>
 
 <div id="catalog_stuff">
-  <a href="/catalog">Shop All Categories</a>
+  <a href="catalog.html">Shop All Categories</a>
   |
-  <a href="/categories">Shop By Category</a>
+  <a href="categories.html">Shop By Category</a>
 </div>
-
-<!-- Profile details from customer -->
-<div id="profile_info" >
-  <center>
-    <br />
-    <div id="profile_info_pid">User ID: </div>
-    <div id="profile_info_name">Name: </div>
-    <div id="profile_info_desc">Email: </div>
-    <div id="profile_info_price">Email: </div>
-    <div id="profile_info_cat">Email: </div>
-    <img id="profile_info_img" src=""></img>
-  </center>
-</div>
-
 
 <script type="text/javascript">
 
+
+function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    $.post('/api/tokenlogin', {"token": googleUser.getAuthResponse().id_token, "password": profile.getId()})
+    .done(
+      function(response) {
+        var full_name = profile.getName();
+        var first_name = full_name.split(" ")[0];
+        var last_name = full_name.split(" ").slice(1).join(" ");
+        var user = {
+          firstName: first_name,
+          lastName: last_name
+        }
+        setUser(user);
+      }
+    )
+    .fail(function() {
+      $('#login_resp').removeClass('d-none').html("Forbidden: Invalid credentials");
+    });
+  }
   function createCookie(name,value,days) {
     if (days) {
       var date = new Date();
@@ -178,28 +187,8 @@
     $('#user_info_nav_group li:lt(2)').addClass("d-none");
   }
 
-  function getProfileOrders(usid) {
-    var my_url = window.location.href.split("/");
-    var itm_id = my_url[my_url.length - 1];
-
-    if (!usid) {
-            usid = 'null';
-    }
-
-    var link = '/products/' + itm_id;
-    $.get(link)
-      .done(function(resp) {
-         $('#profile_info_pid').html("Product ID: " + resp.id);
-         $('#profile_info_name').html("Name: " + resp.name);
-         $('#profile_info_desc').html("Description: " + resp.description);
-         $('#profile_info_price').html("Price: " + resp.price);
-         $('#profile_info_cat').html("Category: " + resp.category);
-         $('#profile_info_img').attr("src", resp.img_url);
-    });
-  }
-
   $('#login_modal #btn_login').click(function() {
-    $.post('/login', $('#login_form').serialize())
+    $.post('/api/login', $('#login_form').serialize())
     .done(function(response) {
       if(response.msg == "LoggedIn") {
         var link = response.links[0].href;
@@ -219,7 +208,7 @@
 
 
   $("#register_modal #btn_register").click(function() {
-    $.post('/register', $('#register_form').serialize())
+    $.post('/api/register', $('#register_form').serialize())
     .done(function(response) {
       $('#register_resp')
       .removeClass('d-none')
@@ -232,7 +221,7 @@
   });
 
   $('#btn_pass_reset').click(function() {
-    $.post('/passresetreq', $('#pass_reset_form').serialize())
+    $.post('/api/passresetreq', $('#pass_reset_form').serialize())
     .done(function(resp) {
       $('#reset_req_result').removeClass('d-none');
       $('#reset_req_result').html(resp);
@@ -242,7 +231,7 @@
   $('#change_password').click(function(){
     $('#pass_reset_modal').modal('toggle');
     var cookie_user_id = readCookie('user_id');
-    var link = '/customers/' + cookie_user_id;
+    var link = '/api/customers/' + cookie_user_id;
     $.get(link)
     .done(function(resp) {
       $('#pass_reset_modal #user_email').val(resp.email);
@@ -259,7 +248,7 @@
     var cookie_user_id = readCookie("user_id");
     if(cookie_user_id) {
       // a user is already logged in
-      $.get("/customers/" + cookie_user_id)
+      $.get("/api/customers/" + cookie_user_id)
       .done(function(user) {
         setUser(user);
 
@@ -269,10 +258,7 @@
         }
       });
     }
-    getProfileOrders(cookie_user_id);
   });
 </script>
-
-
 </body>
 </html>

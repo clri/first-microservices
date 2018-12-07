@@ -4,9 +4,9 @@
   <title>ShopMore</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="order/bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="../bootstrap/js/bootstrap.min.js"></script>
+  <script src="order/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -183,7 +183,7 @@
             usid = 'null';
     }
 
-    var link2 = '/orders/' + user_id + '/' + order_id;
+    var link2 = '/api/orders/' + user_id + '/' + order_id;
     $.get(link2)
       .done(function(resp) {
          console.log(resp);
@@ -204,7 +204,7 @@
   }
 
   $('#login_modal #btn_login').click(function() {
-    $.post('/login', $('#login_form').serialize())
+    $.post('/api/login', $('#login_form').serialize())
     .done(function(response) {
       if(response.msg == "LoggedIn") {
         var link = response.links[0].href;
@@ -224,7 +224,7 @@
 
 
   $("#register_modal #btn_register").click(function() {
-    $.post('/register', $('#register_form').serialize())
+    $.post('/api/register', $('#register_form').serialize())
     .done(function(response) {
       $('#register_resp')
       .removeClass('d-none')
@@ -237,7 +237,7 @@
   });
 
   $('#btn_pass_reset').click(function() {
-    $.post('/passresetreq', $('#pass_reset_form').serialize())
+    $.post('/api/passresetreq', $('#pass_reset_form').serialize())
     .done(function(resp) {
       $('#reset_req_result').removeClass('d-none');
       $('#reset_req_result').html(resp);
@@ -247,7 +247,7 @@
   $('#change_password').click(function(){
     $('#pass_reset_modal').modal('toggle');
     var cookie_user_id = readCookie('user_id');
-    var link = '/customers/' + cookie_user_id;
+    var link = '/api/customers/' + cookie_user_id;
     $.get(link)
     .done(function(resp) {
       $('#pass_reset_modal #user_email').val(resp.email);
@@ -264,7 +264,7 @@
     var cookie_user_id = readCookie("user_id");
     if(cookie_user_id) {
       // a user is already logged in
-      $.get("/customers/" + cookie_user_id)
+      $.get("/api/customers/" + cookie_user_id)
       .done(function(user) {
         setUser(user);
 

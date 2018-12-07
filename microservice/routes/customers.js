@@ -50,7 +50,7 @@ let map_response = function(e, res) {
             // 201 -- created.
             // A link to the thing created. This should probably be in a links header..
             e.resource = "customers";
-            let url = "/" + e.resource + "/" + e.id;
+            let url = "/api/" + e.resource + "/" + e.id;
             let links = [];
             links.push({rel: "self", href: url});
             let result = { msg: "Created", links: links };
@@ -67,7 +67,7 @@ let map_response = function(e, res) {
         // Basically, same logic as above but for login, which is also a POST.
         case return_codes.codes.login_success.code: {
             e.resource="customers";
-            let url = "/" + e.resource + "/" + e.id;
+            let url = "/api/" + e.resource + "/" + e.id;
             let links = [];
             links.push({rel: "self", href: url});
             let result = { msg: "LoggedIn", links: links };
@@ -141,6 +141,28 @@ let login = function(req, res, next) {
     login_registration.login(data, context).then(
         function(result) {
             map_response(result, res);
+        },
+        function(error) {
+            logging.error_message(moduleName + functionName + " error = ", error);
+            res.status(500).json(error);
+        }
+    ).catch(function(exc) {
+        logging.error_message(moduleName + functionName + " exception = ", exc);
+        res.status(500).json(exc);
+    });
+};
+
+let tokenLogin = function(req, res, next) {
+    let functionName = "tokenLogin: "
+
+    let data = req.body;
+    var admop = 0;
+    let context = {tenant: req.tenant, adminOperation: admop};
+
+    login_registration.tokenLogin(data, context).then(
+        function(result) {
+            // map_response(result, res);
+            res.status(200).json(result);
         },
         function(error) {
             logging.error_message(moduleName + functionName + " error = ", error);
@@ -412,6 +434,7 @@ exports.get_by_query = get_by_query;
 exports.post = post;
 exports.register = register;
 exports.login = login;
+exports.tokenLogin = tokenLogin;
 exports.passreset = passreset;
 exports.passresetreq = passresetreq;
 exports.activate_account = activate_account;

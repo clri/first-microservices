@@ -51,51 +51,55 @@ app.use('/', function(req, res, next) {
      next();
  });
 
- app.get('/orders/:id', function(req, resp, next) {
+ app.get('/api/orders/:id', function(req, resp, next) {
          ordersRouter.get_by_id(req, resp, next);
  });
 
- app.get('/orders/:id/:oid', function(req, resp, next) {
+ app.get('/api/orders/:id/:oid', function(req, resp, next) {
          ordersRouter.get_by_oid(req, resp, next);
  });
 
 app.use('/', indexRouter);
-app.get('/customers/:id', function(req, resp, next) {
+app.get('/api/customers/:id', function(req, resp, next) {
   //customersRouter.get_by_id(req, resp, next, w_manager);
   customersRouter.get_by_id(req, resp, next);
 });
-app.get('/customers', customersRouter.get_by_query);
-app.post('/customers', customersRouter.post);
+app.get('/api/customers', customersRouter.get_by_query);
+app.post('/api/customers', customersRouter.post);
 
-app.get('/products/:id', function(req, resp, next) {
+app.get('/api/products/:id', function(req, resp, next) {
   productRouter.get_by_id(req, resp, next);
 });
 
-app.get('/getcats', function(req, resp, next) {
+app.get('/api/getcats', function(req, resp, next) {
   categoryRouter.get_cats(req, resp, next);
 });
 
 
-app.get('/wholecatalog', productRouter.getAll);
-app.get('/shop/:category', function(req, resp, next) {
+app.get('/api/wholecatalog', productRouter.getAll);
+app.get('/api/shop/:category', function(req, resp, next) {
   //customersRouter.get_by_id(req, resp, next, w_manager);
   productRouter.get_by_category(req, resp, next);
 });
-app.post('/register', function(req, resp, next) {
+app.post('/api/register', function(req, resp, next) {
   //customersRouter.register(req, resp, next, w_manager, rclient1);
   customersRouter.register(req, resp, next, rclient1);
 });
-app.post('/login', function(req, resp, next) {
+app.post('/api/login', function(req, resp, next) {
   //customersRouter.login(req, resp, next, w_manager);
   customersRouter.login(req, resp, next);
 });
 
-app.post('/passresetreq', function(req, resp, next) {
+app.post('/api/tokenlogin', function(req, resp, next) {
+  customersRouter.tokenLogin(req, resp, next);
+});
+
+app.post('/api/passresetreq', function(req, resp, next) {
   //customersRouter.passresetreq(req, resp, next, w_manager, rclient0);
   customersRouter.passresetreq(req, resp, next, rclient0);
 });
 
-app.get('/forgotpassword/:reset_token', function(req, resp, next) {
+app.get('/api/forgotpassword/:reset_token', function(req, resp, next) {
   _passreset.validateResetToken(rclient0, req.params.reset_token).then(
     function(success) {
       if(success == true) {
@@ -113,7 +117,7 @@ app.get('/forgotpassword/:reset_token', function(req, resp, next) {
   });
 });
 
-app.get('/activateEmail/:activation_token', function(req, resp, next) {
+app.get('/api/activateEmail/:activation_token', function(req, resp, next) {
   console.log("Activation token: ", req.params.activation_token);
   email_activation.validateActivationToken(rclient1, req.params.activation_token).then(
     function(success) {
@@ -142,7 +146,7 @@ app.get('/activateEmail/:activation_token', function(req, resp, next) {
   });
 });
 
-app.post('/passreset', function(req, resp, next) {
+app.post('/api/passreset', function(req, resp, next) {
   //customersRouter.passreset(req, resp, next, w_manager, rclient0);
   customersRouter.passreset(req, resp, next, rclient0);
 });

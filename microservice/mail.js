@@ -1,8 +1,8 @@
 const nodemailer = require('nodemailer');
 
 let account = {
-	user: "passreset.shopmore@gmail.com",
-	pass: "boguspassword"
+	user: process.env.passreset_email,
+	pass: process.env.passreset_password
 }
 
 exports.sendPassResetEmail = function(link, email_id) {
@@ -46,7 +46,8 @@ exports.sendActivationEmail = function(link, email_id) {
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return console.log(error);
+            console.log("Error sending the email: " + error.toString())
+            console.log("Info about the error: " + info.toString());
         }
     });
 }
