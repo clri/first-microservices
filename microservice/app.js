@@ -12,6 +12,7 @@ var customersRouter = require('./routes/customers');
 var ordersRouter = require('./routes/orders');
 var productRouter = require('./routes/product');
 var categoryRouter = require('./routes/category');
+var cartRouter = require('./routes/cart');
 var _passreset = require('./resources/passreset/passreset');
 var email_activation = require('./resources/activation/activation');
 //var wline_manager = require('./wline_manager');
@@ -57,6 +58,14 @@ app.use('/', function(req, res, next) {
 
  app.get('/api/orders/:id/:oid', function(req, resp, next) {
          ordersRouter.get_by_oid(req, resp, next);
+ });
+
+ app.get('/api/cart/:id/', function(req, resp, next) {
+         cartRouter.get_by_id(req, resp, next);
+ });
+
+ app.get('/api/cart/:id/:item', function(req, resp, next) {
+         cartRouter.add_to_cart(req, resp, next);
  });
 
 app.use('/', indexRouter);

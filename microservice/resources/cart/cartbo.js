@@ -238,6 +238,11 @@ let cart_create = function(data, context) {
 
     return new Promise(function (resolve, reject) {
         data['id'] = uuid();
+        var oitms = []
+        for (var ii = 0; ii < data['items'].length; ii++) {
+                oitms.push(parseInt(data['items'][ii]))
+        }
+        data['items'] = oitms
 
         validateCreateData(data, context).then(function(result) {
 
