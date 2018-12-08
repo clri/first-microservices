@@ -129,6 +129,8 @@
   <a href="/catalog">Shop All Categories</a>
   |
   <a href="/categories">Shop By Category</a>
+  |
+  <a href="/cart">View Cart</a>
 </div>
 
 <!-- Profile details from customer -->
@@ -141,6 +143,7 @@
     <div id="profile_info_price">Email: </div>
     <div id="profile_info_cat">Email: </div>
     <img id="profile_info_img" src=""></img>
+    <a id="profile_info_add" href="">Add to Cart</a>
   </center>
 </div>
 
@@ -205,6 +208,9 @@
          $('#profile_info_price').html("Price: " + resp.price);
          $('#profile_info_cat').html("Category: " + resp.category);
          $('#profile_info_img').attr("src", resp.img_url);
+         if (usid) {
+                 $('#profile_info_add').attr("href", "/api/cart/" + usid + "/" + resp.id);
+         }
     });
   }
 

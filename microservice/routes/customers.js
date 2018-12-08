@@ -152,6 +152,33 @@ let login = function(req, res, next) {
     });
 };
 
+let changeAddress = function(req, res, next) {
+    let functionName = "changeAddress:"
+
+    let data = req.body;
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
+
+    logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
+    logging.debug_message(moduleName + functionName + "body  = ", data);
+
+    //login_registration.login(data, context, w_manager).then(
+    cbo.setAddress(req.params.userID, data.address1, data.address2, data.city,
+            data.state, data.zip, context).then(
+        function(result) {
+            //map_response(result, res);
+            res.status(200).json("Good to go!");
+        },
+        function(error) {
+            logging.error_message(moduleName + functionName + " error = ", error);
+            res.status(500).json(error);
+        }
+    ).catch(function(exc) {
+        logging.error_message(moduleName + functionName + " exception = ", exc);
+        res.status(500).json(exc);
+    });
+};
+
 let tokenLogin = function(req, res, next) {
     let functionName = "tokenLogin: "
 
@@ -438,3 +465,4 @@ exports.tokenLogin = tokenLogin;
 exports.passreset = passreset;
 exports.passresetreq = passresetreq;
 exports.activate_account = activate_account;
+exports.changeAddress = changeAddress;

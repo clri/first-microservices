@@ -99,6 +99,11 @@ app.post('/api/login', function(req, resp, next) {
   customersRouter.login(req, resp, next);
 });
 
+app.post('/api/address/:userID', function(req, resp, next) {
+  //customersRouter.login(req, resp, next, w_manager);
+  customersRouter.changeAddress(req, resp, next);
+});
+
 app.post('/api/tokenlogin', function(req, resp, next) {
   customersRouter.tokenLogin(req, resp, next);
 });

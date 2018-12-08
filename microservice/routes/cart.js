@@ -39,24 +39,24 @@ let get_by_id = function(req, res, next) {
         cbo.retrieveById(req.params.id, fields, context).then(
             function(result) {
                 if (result) {
-                        logging.debug_message("ASDFASDFASDF;;;;");
                     logging.debug_message(result);
                     ans = result[0]
-                    logging.debug_message(ans);
                     //@TODO: we have to get the item details here
                     apigClient.invokeApi(params, '/getallProducts', 'GET', body, {})
                     .then(function(result2){
                         var imgs = []
                         var new_items = []
+                        var prices = []
                         for (var j = 0; j < result2['data'].length; j++) {
                             if (ans['items'].includes(result2['data'][j].id.toString())) {
                                 imgs.push(result2['data'][j].img_url)
                                 new_items.push(result2['data'][j].id)
+                                prices.push(result2['data'][j].price)
                             }
                         }
                         ans.imgs = imgs
                         ans.img_key = new_items //maps items to imgs by index
-                        logging.debug_message(ans)
+                        ans.prices = prices
                         res.status(200).json(ans)
                     }).catch( function(err){
                         logging.debug_message(err);

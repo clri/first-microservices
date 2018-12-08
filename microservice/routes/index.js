@@ -20,8 +20,24 @@ var path = require('path');
    res.sendFile("order.html", {root: path.join(__dirname, "../public")})
  });*/
 
-router.get('/product/:productID', function(req, res, next) {
-  res.sendFile("product.html", {root: path.join(__dirname, "../public")})
+ router.get('/cart', function(req, res, next) {
+   res.sendFile("cart.html", {root: path.join(__dirname, "../bak_public")})
+ });
+
+ router.get('/checking', function(req, res, next) {
+   res.sendFile("checking.html", {root: path.join(__dirname, "../bak_public")})
+ });
+
+ router.get('/address', function(req, res, next) {
+   res.sendFile("address.html", {root: path.join(__dirname, "../bak_public")})
+ });
+
+ router.get('/payment', function(req, res, next) {
+   res.sendFile("payment.html", {root: path.join(__dirname, "../bak_public")})
+ });
+
+router.get('/product', function(req, res, next) {
+  res.sendFile("product.html", {root: path.join(__dirname, "../bak_public")})
 });
 
 /* router.get('/catalog', function(req, res, next) {
