@@ -150,6 +150,8 @@ function onSignIn(googleUser) {
           lastName: last_name
         }
         setUser(user);
+        $('#login_modal').modal('toggle');
+        createCookie("user_id", user.id);
       }
     )
     .fail(function() {
@@ -242,7 +244,15 @@ function onSignIn(googleUser) {
     eraseCookie("user_id");
     $('#user_info_nav_group li:nth-child(3)').addClass('d-none');
     $('#user_info_nav_group li:lt(2)').removeClass("d-none");
+    signOut();
   });
+
+  function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
 
   $(document).ready(function(){
     var cookie_user_id = readCookie("user_id");

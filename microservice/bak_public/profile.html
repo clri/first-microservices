@@ -153,6 +153,35 @@
 
 <script type="text/javascript">
 
+  function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    $.post('/api/tokenlogin', {"token": googleUser.getAuthResponse().id_token, "password": profile.getId()})
+    .done(
+      function(response) {
+        var full_name = profile.getName();
+        var first_name = full_name.split(" ")[0];
+        var last_name = full_name.split(" ").slice(1).join(" ");
+        var user = {
+          firstName: first_name,
+          lastName: last_name
+        }
+        setUser(user);
+        $('#login_modal').modal('toggle');
+        createCookie("user_id", user.id);
+      }
+    )
+    .fail(function() {
+      $('#login_resp').removeClass('d-none').html("Forbidden: Invalid credentials");
+    });
+  }
+
+  $('#logout').click(function(){
+    eraseCookie("user_id");
+    $('#user_info_nav_group li:nth-child(3)').addClass('d-none');
+    $('#user_info_nav_group li:lt(2)').removeClass("d-none");
+    signOut();
+  });
+
   function createCookie(name,value,days) {
     if (days) {
       var date = new Date();
@@ -277,12 +306,6 @@
     .done(function(resp) {
       $('#pass_reset_modal #user_email').val(resp.email);
     })
-  });
-
-  $('#logout').click(function(){
-    eraseCookie("user_id");
-    $('#user_info_nav_group li:nth-child(3)').addClass('d-none');
-    $('#user_info_nav_group li:lt(2)').removeClass("d-none");
   });
 
   $(document).ready(function(){
