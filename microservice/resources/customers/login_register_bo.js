@@ -132,7 +132,7 @@ exports.tokenLogin =  function(d, context) {
                     console.log("Returning register token = " + JSON.stringify(claim, null, 2));
                     new_result.token = claim;
                     new_result.resource = "customers";
-                    new_result.id = c.id;
+                    new_result.id = c[0].id;
 
 
                     console.log("Trying to create google customer");
