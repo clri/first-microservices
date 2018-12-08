@@ -161,8 +161,8 @@ let tokenLogin = function(req, res, next) {
 
     login_registration.tokenLogin(data, context).then(
         function(result) {
-            // map_response(result, res);
-            res.status(200).json(result);
+            map_response(result, res);
+            // res.status(200).json(result);
         },
         function(error) {
             logging.error_message(moduleName + functionName + " error = ", error);
