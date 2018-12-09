@@ -25,7 +25,7 @@ let generateId = function(lastName, firstName) {
 
 // Business logic may dictate that not all parameters are queryable.
 // This should probably be part of a configurable framework that all BOs and use.
-let validQParams = ['lastName', 'firstName', 'email', 'status'];
+let validQParams = ['lastName', 'firstName', 'email', 'status', 'address1', 'address2', 'city', 'state', 'zip'];
 let validateQueryParameters = function(template, context) {
     // We would ONLY filter  values if this is not an internal, admin request.
     if (context.adminOperation) {
@@ -58,7 +58,7 @@ let validateUpdateData = function(data) {
 
 // Fields to return from queries from non-admins.
 // All of this needs to be in a reusable framework, otherwise I will repeat functions in every BO.
-let fields_to_return = ['id', 'lastName', 'firstName', 'email', 'last_login', 'created', 'pw', 'status'];
+let fields_to_return = ['id', 'lastName', 'firstName', 'email', 'last_login', 'created', 'pw', 'status', 'address1', 'address2', 'city', 'state', 'zip'];
 let filter_response_fields = function (result, context) {
 
     // We would ONLY filter return values if this is not an internal, admin request.

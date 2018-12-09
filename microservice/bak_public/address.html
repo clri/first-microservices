@@ -152,7 +152,7 @@
     <input type="text" name="city" class="form-control" id="city" placeholder="City">
   </div>
   <div class="form-group">
-    <label for="state">City</label>
+    <label for="state">State</label>
     <input type="text" name="state" class="form-control" id="state" placeholder="State">
   </div>
   <div class="form-group">
@@ -243,7 +243,7 @@ function onSignIn(googleUser) {
     $.post(link, $('#address_form').serialize())
     .done(function(response) {
       console.log(response);
-      window.location.href = "payment.html" //redirect to payment
+      window.location.href = "/payment" //redirect to payment
     })
     .fail(function() {
       //do nothing

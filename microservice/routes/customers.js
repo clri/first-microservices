@@ -391,6 +391,8 @@ let get_by_id = function(req, res, next) {
         cbo.retrieveById(req.params.id, fields, context).then(
             function(result) {
                 if (result) {
+                        logging.debug_message("ASDFASDFASDF")
+                        logging.debug_message(result)
                     res.status(200).json(result);
                 }
                 else {

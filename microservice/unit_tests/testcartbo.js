@@ -41,6 +41,19 @@ let testB2 = function(d) {
         );
 };
 
+let testC = function() {
+    cbo.placeOrder('sulu1', context).then(
+        function(result) {
+            logging.debug_message("result = ", result);
+        })
+        .catch(
+            function(error) {
+                logging.error_message("error = " + error);
+            }
+        );
+};
+
 //testB1();
 //testB2(test_create);
-testB2(test_update);
+//testB2(test_update);
+testC();

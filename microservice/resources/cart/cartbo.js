@@ -11,6 +11,7 @@ let moduleName = "cartbo.";
 let uuid = require('uuid/v4');
 let customersbo = require('../customers/customersbo')
 let env = require('../../env');
+let obo = require('../orders/ordersbo');
 
 let invokeU = env.getApig();
 let cartdo = new cdo.CartDAO();
@@ -151,9 +152,57 @@ exports.retrieveById = function(id, fields, context) {
 //@TODO: later
 exports.placeOrder = function(id, context) {
         let functionName = "placeOrder"
-        //get the ID of the cart
-        //create an order using ordersBO
-        throw "Not implemented"
+        let fields = ['id', 'items']
+
+        return new Promise(function (resolve, reject) {
+
+            cartdo.retrieveById(id, fields, context).then(
+                function (result) {
+                    result = result[0];
+                    let oitms = [];
+                    for (var ii = 0; ii < result['items'].length; ii++) {
+                            oitms.push(parseInt(result['items'][ii]))
+                    }
+                    var new_order = {
+                            customer: id,
+                            items: oitms
+                    }
+                    //first create the order
+                    obo.create(new_order, context).then(
+                            function(result2) {
+                                    logging.debug_message("converted to order!!");
+                                    //order created? great. now delete the cart.
+                                    var data = {
+                                            customer: id,
+                                            id: result.id
+                                    }
+                                    logging.debug_message(data);
+                                    cartdo.delete(data, context).then(
+                                            function(result3) {
+                                                    logging.debug_message("deleted cart!");
+                                                    resolve(result3);
+                                            },
+                                            function(error) {
+                                                    logging.debug_message("NOT deleted cart!");
+                                                    logging.error_message(moduleName + functionName + "error = ", error);
+                                                    reject(return_codes.codes.internal_error);
+                                            }
+
+                                    )
+                            },
+                            function(error) {
+                                    logging.debug_message("not converted order!");
+                                    logging.error_message(moduleName + functionName + "error = ", error);
+                                    reject(return_codes.codes.internal_error);
+                            }
+                    )
+                },
+                function (error) {
+                    logging.error_message(moduleName + functionName + "error = ", error);
+                    reject(return_codes.codes.internal_error);
+                }
+            )
+        });
 }
 
 exports.addToCart = function(data, context) {

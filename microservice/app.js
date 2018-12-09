@@ -64,6 +64,10 @@ app.use('/', function(req, res, next) {
          cartRouter.get_by_id(req, resp, next);
  });
 
+ app.get('/api/convert/:id/', function(req, resp, next) {
+         cartRouter.get_by_id(req, resp, next);
+ });
+
  app.get('/api/cart/:id/:item', function(req, resp, next) {
          cartRouter.add_to_cart(req, resp, next);
  });

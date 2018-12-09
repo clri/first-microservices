@@ -117,7 +117,31 @@ let add_to_cart = function(req, res, next) {
 
 }
 
+let convert_order = function(req, res, next) {
+    let functionName = "convert_order:"
+
+    logging.debug_message(moduleName + functionName + "tenant  = ", req.tenant);
+    logging.debug_message(moduleName + functionName + "params  = ", req.params);
+
+    let context = {tenant: req.tenant};
+    try {
+      cbo.placeOrder(req.params.id, context).then(
+        function(result) {
+                logging.debug_message(result)
+                res.status(200).send("Placed Order!");
+        }, function(error) {
+                logging.debug_message(error);
+                res.status(500).send("Could not place order!")
+        }
+      );
+
+    }
+    catch(e) {
+      logging.error_message("e = " + e);
+      res.status(500).send("Boodmf!111");
+}
 
 
 exports.get_by_id = get_by_id;
 exports.add_to_cart = add_to_cart;
+exports.convert_order = convert_order;

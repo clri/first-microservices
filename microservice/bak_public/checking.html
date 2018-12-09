@@ -251,7 +251,7 @@ function onSignIn(googleUser) {
         setUser(user);
 
         //here, we check to see if there is an address.
-        console.log(user.address1);
+        console.log(user);
         if (typeof(user.address1) == "undefined"
           || typeof(user.city) == "undefined"
           || typeof(user.state) == "undefined"
