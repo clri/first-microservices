@@ -10,12 +10,12 @@ var path = require('path');
  router.get('/home', function(req, res, next) {
    res.sendFile("home.html", {root: path.join(__dirname, "../public")});
  });
-
+*/
 //@TODO: send params in a cleaner way
  router.get('/profile/:profileID', function(req, res, next) {
-   res.sendFile("profile.html", {root: path.join(__dirname, "../public")})
+   res.sendFile("profile.html", {root: path.join(__dirname, "../bak_public")})
  });
-
+/*
  router.get('/order/:profileID/:orderID', function(req, res, next) {
    res.sendFile("order.html", {root: path.join(__dirname, "../public")})
  });*/
@@ -24,15 +24,15 @@ var path = require('path');
    res.sendFile("cart.html", {root: path.join(__dirname, "../bak_public")})
  });
 
- router.get('/checking', function(req, res, next) {
+ router.get('/api/checking', function(req, res, next) {
    res.sendFile("checking.html", {root: path.join(__dirname, "../bak_public")})
  });
 
- router.get('/address', function(req, res, next) {
+ router.get('/api/address', function(req, res, next) {
    res.sendFile("address.html", {root: path.join(__dirname, "../bak_public")})
  });
 
- router.get('/payment', function(req, res, next) {
+ router.get('/api/payment', function(req, res, next) {
    res.sendFile("payment.html", {root: path.join(__dirname, "../bak_public")})
  });
 

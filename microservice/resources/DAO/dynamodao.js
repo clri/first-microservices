@@ -114,9 +114,11 @@ let DynDao = function(collection) {
                     that.table.updateAsync(that.columnToColumn(template)).then(
                             function(res) {
                                     logging.debug_message("SUCCESS UPDATE" + res);
+                                    resolve(res);
 
                             }, function(err) {
                                     logging.debug_message(err);
+                                    reject(err);
                             }
                     );
             })
@@ -129,9 +131,11 @@ let DynDao = function(collection) {
                    that.table.destroyAsync(that.columnToColumn(template)).then(
                            function(res) {
                                    logging.debug_message("SUCCESS DETROY" + res);
+                                   resolve(res);
 
                            }, function(err) {
-                                   logging.debug_message(err);
+                                   logging.debug_message(err)
+                                   reject(err);
                            }
                    )
            })

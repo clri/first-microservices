@@ -140,6 +140,7 @@ let convert_order = function(req, res, next) {
       logging.error_message("e = " + e);
       res.status(500).send("Boodmf!111");
 }
+}
 
 
 exports.get_by_id = get_by_id;

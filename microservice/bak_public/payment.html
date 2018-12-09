@@ -251,7 +251,12 @@ function onSignIn(googleUser) {
         setUser(user);
 
         //@TODO: add Stripe. For now we will just make an API call
-        //to convert the shopping cart into an order. 
+        //to convert the shopping cart into an order.
+        $.get("/api/convert/" + cookie_user_id)
+        .done(function(result) {
+                //redirect to view your orders
+                window.location.href = "/profile/" + cookie_user_id;
+        })
 
         // remind the user that his/her accout needs activation
         if(user.status == "PENDING") {

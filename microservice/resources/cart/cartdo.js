@@ -138,9 +138,11 @@ let CartDAO = function() {
                 self.theDao.update(template, fields).then(
                         function(res) {
                                 logging.debug_message("CART UPDATE" + res);
+                                resolve(res);
 
                         }, function(err) {
                                 logging.debug_message(err);
+                                reject(err);
                         })
 
         })
@@ -155,10 +157,13 @@ let CartDAO = function() {
                 self.theDao.delete(template).then(
                         function(res) {
                                 logging.debug_message("CART DELETE" + res);
+                                resolve(res);
 
                         }, function(err) {
                                 logging.debug_message(err);
+                                reject(err);
                         })
+
 
         })
     };

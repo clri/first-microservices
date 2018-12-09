@@ -177,6 +177,7 @@ exports.placeOrder = function(id, context) {
                                             id: result.id
                                     }
                                     logging.debug_message(data);
+
                                     cartdo.delete(data, context).then(
                                             function(result3) {
                                                     logging.debug_message("deleted cart!");
