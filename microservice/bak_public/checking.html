@@ -252,10 +252,7 @@ function onSignIn(googleUser) {
 
         //here, we check to see if there is an address.
         console.log(user);
-        if (typeof(user.address1) == "undefined"
-          || typeof(user.city) == "undefined"
-          || typeof(user.state) == "undefined"
-          || typeof(user.zip) == "undefined") {
+        if (typeof(user.address1) == "undefined") {
                   window.location.replace("address");
                   return;
           }

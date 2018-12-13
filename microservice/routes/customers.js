@@ -163,8 +163,9 @@ let changeAddress = function(req, res, next) {
     logging.debug_message(moduleName + functionName + "body  = ", data);
 
     //login_registration.login(data, context, w_manager).then(
-    cbo.setAddress(req.params.userID, data.address1, data.address2, data.city,
-            data.state, data.zip, context).then(
+    cbo.setAddress(req.params.userID, data.address1, /*data.address2, data.city,
+            data.state, data.zip,*/ 'null', 'null', 'NA', 'null',
+            context).then(
         function(result) {
             //map_response(result, res);
             res.status(200).json("Good to go!");
