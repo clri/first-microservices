@@ -22,6 +22,27 @@ let generateId = function(lastName, firstName) {
     return newId;
 };
 
+let captureAddress = function(req, res, next) {
+
+    let address = req.body.newaddress;
+    let addresstype = req.body.addresstype;
+
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
+
+    this.setAddress("", address, addresstype, "", "", "", context)
+};
+
+let captureAddress2 = function(req, res, next) {
+
+    let address = req.body.updatenewaddress;
+
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
+
+    this.setAddress("", address, "", "", "", "", context)
+};
+
 
 // Business logic may dictate that not all parameters are queryable.
 // This should probably be part of a configurable framework that all BOs and use.
@@ -273,6 +294,34 @@ exports.getAddress = function(id, context) {
 
 }
 
+let check_address = function(street) {
+    let base_url = "https://us-street.api.smartystreets.com/street-address?street=";
+    let auth_id = "c86cf98f-4f9f-d9d0-819a-e98a39f2a318";
+    let auth_token = "NWG3q8Lp3L4OJ9OWJi2z";
+    let get_url = base_url + street;
+    get_url += "&auth-id=" + auth_id + "&auth-token=" + auth_token;
+    let encoded = encodeURI(get_url);
+
+    const http = require('http');
+
+    let data = '';
+    http.get(encoded, (resp) => {
+
+        resp.on('data', (chunk) => {
+            data += chunk;
+        });
+
+    }).on("error", (err) => {
+        console.log("Error: " + err.message);
+    });
+
+    let was_valid = true;
+    if (Object.keys(data).length === 0){
+        was_valid = false
+    }
+    return was_valid;
+};
+
 exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip, context) {
         let functionNAme = "setAddress"
         let customersdo = new cdo.CustomersDAO();
@@ -289,18 +338,25 @@ exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip,
             zip: new_zip
         }
         //@TODO: validate address with smartystreets
+        let was_valid = this.check_address(user.address1);
+        if (was_valid) {
 
-        return new Promise(function(resolve, reject) {
-            customersdo.update(template, updates, context).then(
-                function(success) {
-                    resolve(success);
-                },
-                function(error) {
-                    logging.debug_message("customersbo.update error: ", error);
-                    reject(error);
-                }
-            ).catch(function(exc) {
-                logging.debug_message("customersbo.update exception: ", exc);
+            return new Promise(function (resolve, reject) {
+                customersdo.update(template, updates, context).then(
+                    function (success) {
+                        resolve(success);
+                    },
+                    function (error) {
+                        logging.debug_message("customersbo.update error: ", error);
+                        reject(error);
+                    }
+                ).catch(function (exc) {
+                    logging.debug_message("customersbo.update exception: ", exc);
+                });
             });
-        });
+        }
+        else{
+            //wasn't valid address
+            return;
+        }
 }

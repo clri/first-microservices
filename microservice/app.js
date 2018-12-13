@@ -9,6 +9,7 @@ var logging = require('./lib/logging');
 
 var indexRouter = require('./routes/index');
 var customersRouter = require('./routes/customers');
+var customersbo_router = require('./resources/customers/customersbo');
 var ordersRouter = require('./routes/orders');
 var productRouter = require('./routes/product');
 var categoryRouter = require('./routes/category');
@@ -98,6 +99,15 @@ app.post('/api/register', function(req, resp, next) {
   //customersRouter.register(req, resp, next, w_manager, rclient1);
   customersRouter.register(req, resp, next, rclient1);
 });
+
+app.post('/api/addressaccepted', function(req, resp, next) {
+    customersbo_router.captureAddress(req, resp, next);
+});
+
+app.post('/api/addressaccepted2', function(req, resp, next) {
+    customersbo_router.captureAddress2(req, resp, next);
+});
+
 app.post('/api/login', function(req, resp, next) {
   //customersRouter.login(req, resp, next, w_manager);
   customersRouter.login(req, resp, next);
