@@ -337,6 +337,7 @@ exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip,
             state: new_state,
             zip: new_zip
         }
+        console.log("Set address");
         //@TODO: validate address with smartystreets
         let was_valid = this.check_address(user.address1);
         if (was_valid) {

@@ -202,8 +202,39 @@
     s3.on("AddressAccepted", function(event, data, previousHandler)
     {
         console.log("Address accepted");
-        $.post('/api/addressaccepted', $('#addressform').serialize());
+        //$.post('/api/addressaccepted', $('#addressform').serialize());
     });
+
+    /**s3.on("AddressWasInvalid", function(event, data, previousHandler){
+      console.log("address invalid");
+        alert("Address invalid!");
+        previousHandler(event, data);
+    });
+
+    s3.on("AddressWasMissingSecondary", function(event, data, previousHandler){
+        console.log("address missing secondary");
+        alert("Don't forget apartment number!");
+        previousHandler(event, data);
+    });
+
+    s3.on("AddressWasMissingInput", function(event, data, previousHandler){
+        console.log("address missing input");
+        alert("Address was missing input!");
+        previousHandler(event, data);
+    });
+
+    s3.on("AddressWasAmbiguous", function(event, data, previousHandler){
+        console.log("address ambiguous");
+        alert("Address was ambiguous!");
+        previousHandler(event, data);
+    });
+
+
+    s3.on("AddressAccepted", function(event, data, previousHandler)
+    {
+        console.log("Address accepted");
+        s3.verify('#newaddress');
+    });**/
 
 
   function onSignIn(googleUser) {
@@ -302,6 +333,11 @@
   $("#register_modal #btn_register").click(function() {
     $.post('/api/register', $('#register_form').serialize())
     .done(function(response) {
+        var cbo = require('../resources/customers/customersbo');
+        var adr = $("#register_modal #newaddress").val();
+        var adrtype = $("#register_modal #addresstype").val();
+        cbo.setAddress(response.id, adr, adrtype, 'null', 'null', 'null', context);
+
       $('#register_resp')
       .removeClass('d-none')
       .html('Activate your account using link sent to your registered email');

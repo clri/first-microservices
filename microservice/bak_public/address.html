@@ -175,12 +175,6 @@
 
 <div class="update-address">
 <form id="address_form">
-  <form id = "updateaddressform">
-    <label for="updatenewaddress">Address</label>
-    <br>
-    <input type="text" id="updatenewaddress" name="updatenewaddress" placeholder="Address">
-    <br>
-  </form>
   <div class="form-group">
     <label for="address1">Address Line 1</label>
     <input type="text" name="address1" class="form-control" id="address1" placeholder="Street Address">
@@ -200,14 +194,14 @@
         debug: true,
         target: "US",
         addresses: [{
-            freeform: '#updatenewaddress'
+            freeform: '#address1'
         }]
     });
 
     s3_2.on("AddressAccepted", function(event, data, previousHandler)
     {
         console.log("Address accepted");
-        $.post('/api/addressaccepted2', $('#updateaddressform').serialize());
+        //$.post('/api/addressaccepted2', $('#updateaddressform').serialize());
     });
 
     let s3 = jQuery.LiveAddress({
@@ -239,7 +233,7 @@
     s3.on("AddressAccepted", function(event, data, previousHandler)
     {
         console.log("Address accepted");
-        $.post('/api/addressaccepted', $('#addressform').serialize());
+       // $.post('/api/addressaccepted', $('#addressform').serialize());
 
     });
 
@@ -331,6 +325,11 @@ function onSignIn(googleUser) {
   $("#register_modal #btn_register").click(function() {
     $.post('/api/register', $('#register_form').serialize())
     .done(function(response) {
+        var cbo = require('../resources/customers/customersbo');
+        var adr = $("#register_modal #newaddress").val();
+        var adrtype = $("#register_modal #addresstype").val();
+        cbo.setAddress(response.id, adr, adrtype, 'null', 'null', 'null', context);
+
       $('#register_resp')
       .removeClass('d-none')
       .html('Activate your account using link sent to your registered email');

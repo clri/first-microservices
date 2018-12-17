@@ -209,7 +209,7 @@
     s3.on("AddressAccepted", function(event, data, previousHandler)
     {
         console.log("Address accepted");
-        $.post('/api/addressaccepted', $('#addressform').serialize());
+        //$.post('/api/addressaccepted', $('#addressform').serialize());
     });
 
   function createCookie(name,value,days) {
@@ -293,6 +293,11 @@
   $("#register_modal #btn_register").click(function() {
     $.post('/api/register', $('#register_form').serialize())
     .done(function(response) {
+        var cbo = require('../resources/customers/customersbo');
+        var adr = $("#register_modal #newaddress").val();
+        var adrtype = $("#register_modal #addresstype").val();
+        cbo.setAddress(response.id, adr, adrtype, 'null', 'null', 'null', context);
+
       $('#register_resp')
       .removeClass('d-none')
       .html('Activate your account using link sent to your registered email');
