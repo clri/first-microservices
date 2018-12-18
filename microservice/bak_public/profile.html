@@ -283,8 +283,8 @@
   }
 
   function getProfileOrders(usid) {
-    // var my_url = window.location.href.split("/");
-    var profile_id = readCookie("user_id");
+    var my_url = window.location.href.split("/");
+    var profile_id = my_url[my_url.length - 1]/*readCookie("user_id"); NO!!!!!*/
 
     if (!usid) {
             usid = 'null';
