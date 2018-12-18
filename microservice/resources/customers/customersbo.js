@@ -11,6 +11,8 @@ let return_codes =  require('../return_codes');                     // Come stan
 let moduleName = "customersbo.";                                    // Sort of used in logging messages.
 let sandh = require('../../lib/salthash');
 
+    const http = require('http');
+    const axios = require('axios');
 
 //@TODO: implement generateID function that does not rely on triggers
 //but that works with Waterline
@@ -20,6 +22,27 @@ let generateId = function(lastName, firstName) {
     let p2 = lastName.substr(0,2);
     let newId = p1 + p2;
     return newId;
+};
+
+let captureAddress = function(req, res, next) {
+
+    let address = req.body.newaddress;
+    let addresstype = req.body.addresstype;
+
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
+
+    this.setAddress("", address, addresstype, "", "", "", context)
+};
+
+let captureAddress2 = function(req, res, next) {
+
+    let address = req.body.updatenewaddress;
+
+    var admop = 0;// get_admin_operation(req.query['user']);
+    let context = {tenant: req.tenant, adminOperation: admop};
+
+    this.setAddress("", address, "", "", "", "", context)
 };
 
 
@@ -273,8 +296,34 @@ exports.getAddress = function(id, context) {
 
 }
 
+let check_address = function(street) {
+    let base_url = "https://us-street.api.smartystreets.com/street-address?street=";
+    let auth_id = "c86cf98f-4f9f-d9d0-819a-e98a39f2a318";
+    let auth_token = "NWG3q8Lp3L4OJ9OWJi2z";
+    let get_url = base_url + street;
+    get_url += "&auth-id=" + auth_id + "&auth-token=" + auth_token;
+    let encoded = encodeURI(get_url);
+
+    let data = '';
+    //logging.debug_message(encoded);
+    return new Promise(function (resolve, reject) {
+    axios.get(encoded).then(resp => {
+            logging.debug_message("ASDFASDF")
+            logging.debug_message(resp);
+            if (resp.data.length == 0) {
+                    resolve(false);
+            }
+            resolve(true);
+    }).catch(err => {
+            logging.debug_message(err);//err.message);
+            resolve( false);
+
+    });
+})
+};
+
 exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip, context) {
-        let functionNAme = "setAddress"
+        let functionName = "setAddress"
         let customersdo = new cdo.CustomersDAO();
 
         let template = {
@@ -288,19 +337,30 @@ exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip,
             state: new_state,
             zip: new_zip
         }
+        console.log("Set address");
+        logging.debug_message(new_a1);
         //@TODO: validate address with smartystreets
-
-        return new Promise(function(resolve, reject) {
-            customersdo.update(template, updates, context).then(
-                function(success) {
-                    resolve(success);
-                },
-                function(error) {
-                    logging.debug_message("customersbo.update error: ", error);
-                    reject(error);
-                }
-            ).catch(function(exc) {
-                logging.debug_message("customersbo.update exception: ", exc);
+        let was_valid = check_address(new_a1);
+        if (was_valid) {
+                logging.debug_message("was valid")
+            return new Promise(function (resolve, reject) {
+                customersdo.update(template, updates, context).then(
+                    function (success) {
+                            logging.debug_message(success);
+                        resolve(success);
+                    },
+                    function (error) {
+                        logging.debug_message("customersbo.update error: ", error);
+                        reject(error);
+                    }
+                ).catch(function (exc) {
+                    logging.debug_message("customersbo.update exception: ", exc);
+                    reject(exc)
+                });
             });
-        });
+        }
+        else{
+            //wasn't valid address
+            return;
+        }
 }

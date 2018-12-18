@@ -45,7 +45,6 @@ let map_response = function(e, res) {
         }
 
         case return_codes.codes.registration_success.code: {
-
             // POST is "creating" something. We will return
             // 201 -- created.
             // A link to the thing created. This should probably be in a links header..
@@ -53,7 +52,7 @@ let map_response = function(e, res) {
             let url = "/api/" + e.resource + "/" + e.id;
             let links = [];
             links.push({rel: "self", href: url});
-            let result = { msg: "Created", links: links };
+            let result = { msg: "Created", links: links, id: e.id };
 
             // If there is a generated security token, return it.
             if (e.token) {
@@ -111,6 +110,7 @@ let register = function(req, res, next, rclient) {
     login_registration.register(data, context, rclient).then(
         function(result) {
             if (result) {
+                    logging.debug_message("ASDKFLASJDKFASLK")
                logging.debug_message(result);
                map_response(result, res);
             }

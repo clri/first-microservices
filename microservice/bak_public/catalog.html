@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="CustomerApp">
 <head>
   <title>ShopMore</title>
   <meta charset="utf-8">
@@ -7,6 +7,24 @@
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/5.1/jquery.liveaddress.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+
+  <style>
+    .smarty-ui{
+      z-index:1051;
+    }
+    .smarty-autocomplete {
+      position: relative;
+      right:40px;
+      top:85px;
+    }
+    .smarty-tag{
+      position: relative;
+      top:90px;
+    }
+  </style>
 </head>
 <body>
 
@@ -75,8 +93,8 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <form id="register_form">
+      <div class="modal-body" ng-controller="HomeController">
+              <form id="register_form">
                 <div class="form-group">
                   <label for="user_first_name">First Name</label>
                   <input type="text" name="firstName" class="form-control" id="user_first_name" placeholder="First Name">
@@ -93,8 +111,26 @@
                   <label for="reg_user_password">Password</label>
                   <input type="password" name = "pw" class="form-control" id="reg_user_password" placeholder="Password">
                 </div>
-                <button id = "btn_register" type="button" class="btn btn-primary">Submit</button>
-                <div class="alert alert-primary d-none mt-sm-4" role="alert" id="register_resp"></div>
+          <form id = "addressform">
+            <label for="newaddress">Address</label>
+            <br>
+            <input type="text" id="newaddress" name="newaddress" placeholder="Address">
+            <br>
+            <p></p>
+            <div class="dropdown">
+              <button class="btn  btn-primary dropdown-toggle"
+                      type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white;" >
+                Choose the type of address
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a ng-click="addressKind($index)" ng-repeat="k in addressKinds" class="dropdown-item">{{k}}</a>
+              </div>
+            </div>
+            <input type="text" ng-model="selectedAddressKind" id="addresstype" name="addresstype"><br>
+          </form>
+          <p></p>
+          <button id = "btn_register" type="button" class="btn btn-primary">Submit</button>
+          <div class="alert alert-primary d-none mt-sm-4" role="alert" id="register_resp"></div>
         </form>
       </div>
     </div>
@@ -145,6 +181,37 @@
 
 
 <script type="text/javascript">
+
+    let s3 = jQuery.LiveAddress({
+        key: "5343278949107026",
+        waitForStreet: true,
+        debug: true,
+        target: "US",
+        addresses: [{
+            id: "myID",
+            freeform: '#newaddress'
+        }]
+    });
+
+    s3.deactivate("myID");
+
+    $("#register_modal").on("shown.bs.modal", function () {
+        // Reactivate the form when not hidden
+        s3.activate("myID");
+        // This line helps to make sure the checkmark goes back to where it belongs
+        $(window).resize();
+    });
+
+    $("#register_modal").on("hide.bs.modal", function() {
+// Deactivate the form when hidden
+        s3.deactivate("myID");
+    });
+
+    s3.on("AddressAccepted", function(event, data, previousHandler)
+    {
+        console.log("Address accepted");
+        //$.post('/api/addressaccepted', $('#addressform').serialize());
+    });
 
   function onSignIn(googleUser) {
     var profile = googleUser.getBasicProfile();
@@ -284,9 +351,16 @@
   $("#register_modal #btn_register").click(function() {
     $.post('/api/register', $('#register_form').serialize())
     .done(function(response) {
-      $('#register_resp')
-      .removeClass('d-none')
-      .html('Activate your account using link sent to your registered email');
+        var adr = $("#register_modal #newaddress").val();
+        var adrtype = $("#register_modal #addresstype").val();
+        console.log(response)
+        $.post('/api/address/' + response.id, {address1 : adr, address2 : adrtype})
+        .done(function(response) {
+                console.log(response)
+                $('#register_resp')
+                .removeClass('d-none')
+                .html('Activate your account using link sent to your registered email');
+        });
     });
   });
   $('#login_modal #btn_reset').click(function() {
@@ -330,6 +404,23 @@
   });
 </script>
 
+<script>
+    var customerapp = angular.module("CustomerApp", []);
 
+    customerapp.controller("HomeController", function($scope, $http, $location, $window) {
+
+
+        $scope.placeholder = "enter an address and select a choice."
+
+        $scope.addressKinds = ['Home', 'Work', 'Other']
+
+        $scope.addressKind = function(idx) {
+            console.log("Address kind = " + $scope.addressKinds[idx]);
+            $scope.selectedAddressKind = $scope.addressKinds[idx];
+        };
+
+
+    });
+</script>
 </body>
 </html>
