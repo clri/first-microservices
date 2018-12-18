@@ -11,6 +11,8 @@ let return_codes =  require('../return_codes');                     // Come stan
 let moduleName = "customersbo.";                                    // Sort of used in logging messages.
 let sandh = require('../../lib/salthash');
 
+    const http = require('http');
+    const axios = require('axios');
 
 //@TODO: implement generateID function that does not rely on triggers
 //but that works with Waterline
@@ -302,28 +304,23 @@ let check_address = function(street) {
     get_url += "&auth-id=" + auth_id + "&auth-token=" + auth_token;
     let encoded = encodeURI(get_url);
 
-    const http = require('http');
-
     let data = '';
-    http.get(encoded, (resp) => {
+    //logging.debug_message(encoded);
+    return new Promise(function (resolve, reject) {
+    axios.get(encoded).then(resp => {
+            logging.debug_message("ASDFASDF")
+            logging.debug_message(resp);
+            resolve(false);
+    }).catch(err => {
+            logging.debug_message(err);//err.message);
+            resolve( false);
 
-        resp.on('data', (chunk) => {
-            data += chunk;
-        });
-
-    }).on("error", (err) => {
-        console.log("Error: " + err.message);
     });
-
-    let was_valid = true;
-    if (Object.keys(data).length === 0){
-        was_valid = false
-    }
-    return was_valid;
+})
 };
 
 exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip, context) {
-        let functionNAme = "setAddress"
+        let functionName = "setAddress"
         let customersdo = new cdo.CustomersDAO();
 
         let template = {
@@ -338,13 +335,15 @@ exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip,
             zip: new_zip
         }
         console.log("Set address");
+        logging.debug_message(new_a1);
         //@TODO: validate address with smartystreets
-        let was_valid = this.check_address(user.address1);
+        let was_valid = check_address(new_a1);
         if (was_valid) {
-
+                logging.debug_message("was valid")
             return new Promise(function (resolve, reject) {
                 customersdo.update(template, updates, context).then(
                     function (success) {
+                            logging.debug_message(success);
                         resolve(success);
                     },
                     function (error) {
@@ -353,6 +352,7 @@ exports.setAddress = function(cid, new_a1, new_a2, new_city, new_state, new_zip,
                     }
                 ).catch(function (exc) {
                     logging.debug_message("customersbo.update exception: ", exc);
+                    reject(exc)
                 });
             });
         }
