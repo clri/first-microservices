@@ -310,7 +310,10 @@ let check_address = function(street) {
     axios.get(encoded).then(resp => {
             logging.debug_message("ASDFASDF")
             logging.debug_message(resp);
-            resolve(false);
+            if (resp.data.length == 0) {
+                    resolve(false);
+            }
+            resolve(true);
     }).catch(err => {
             logging.debug_message(err);//err.message);
             resolve( false);

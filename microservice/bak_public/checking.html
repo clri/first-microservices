@@ -4,14 +4,15 @@
   <title>ShopMore</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../checking/bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="../../checking/bootstrap/js/bootstrap.min.js"></script>
   <meta name="google-signin-client_id" content="863508771289-rtovgs2emuang3ngk70mmqmnu3opomg4.apps.googleusercontent.com">
   <script src="https://apis.google.com/js/platform.js" async defer></script>
   <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/5.1/jquery.liveaddress.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
   <style>
     .smarty-ui{
@@ -316,6 +317,30 @@ function onSignIn(googleUser) {
   });
 
 
+  let check_address = function(street) {
+          let base_url = "https://us-street.api.smartystreets.com/street-address?street=";
+          let auth_id = "5343278949107026";
+          let get_url = base_url + street;
+          get_url += "&auth-id=" + auth_id;
+          let encoded = encodeURI(get_url);
+
+          console.log("HEY");
+          return new Promise(function (resolve, reject) {
+          axios.get(encoded).then(resp => {
+                  console.log("ASDFASDF")
+                  console.log(resp);
+                  if (resp.data.length == 0) {
+                          resolve(false);
+                  }
+                  resolve(true);
+          }).catch(err => {
+                  console.log("******");
+                  console.log(err);//err.message);
+                  resolve( false);
+          });
+  });
+  }
+
 
   $(document).ready(function(){
     var cookie_user_id = readCookie("user_id");
@@ -331,18 +356,21 @@ function onSignIn(googleUser) {
                   window.location.replace("address");
                   return;
           }
-        //@TODO: when we have added SmartyStreets, check if address is
-        //valid. if not, redirect to address.html
 
-
-        if(this.check_address(user.address1)){
-            //if there is an address and it is valid, we redirect to
-            window.location.replace("payment");
-        }
-        else{
-            window.location.replace("address");
-            return;
-        }
+          //smartydstreets
+          check_address(user.address1).then(ca_ => {
+                  console.log("**&&&***");
+                  console.log(ca_);
+                  if(ca_){
+                      //if there is an address and it is valid, we redirect to
+                      window.location.replace("payment");
+                      return;
+                  }
+                  else{
+                      window.location.replace("address");
+                      return;
+                  }
+          });
 
         // remind the user that his/her accout needs activation
         if(user.status == "PENDING") {
@@ -351,37 +379,7 @@ function onSignIn(googleUser) {
       });
     }
   });
-
-
-    let check_address = function(street) {
-        let base_url = "https://us-street.api.smartystreets.com/street-address?street=";
-        let auth_id = "5343278949107026";
-        let get_url = base_url + street;
-        get_url += "&auth-id=" + auth_id;
-        let encoded = encodeURI(get_url);
-
-        const http = require('http');
-
-        let data = '';
-        http.get(encoded, (resp) => {
-
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
-
-        }).on("error", (err) => {
-            console.log("Error: " + err.message);
-        });
-
-        let was_valid = true;
-        if (Object.keys(data).length === 0){
-            was_valid = false
-        }
-        return was_valid;
-    };
-</script>
-
-<script>
+/*
     var customerapp = angular.module("CustomerApp", []);
 
     customerapp.controller("HomeController", function($scope, $http, $location, $window) {
@@ -397,7 +395,7 @@ function onSignIn(googleUser) {
         };
 
 
-    });
+});*/
 </script>
 </body>
 </html>

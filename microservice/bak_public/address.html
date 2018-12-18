@@ -4,9 +4,9 @@
   <title>ShopMore</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../address/bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="../../address/bootstrap/js/bootstrap.min.js"></script>
   <meta name="google-signin-client_id" content="863508771289-rtovgs2emuang3ngk70mmqmnu3opomg4.apps.googleusercontent.com">
   <script src="https://apis.google.com/js/platform.js" async defer></script>
   <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/5.1/jquery.liveaddress.min.js"></script>
@@ -313,7 +313,7 @@ function onSignIn(googleUser) {
     $.post(link, $('#address_form').serialize())
     .done(function(response) {
       console.log(response);
-      window.location.href = "/payment" //redirect to payment
+      window.location.href = "/api/payment" //redirect to payment
     })
     .fail(function() {
       //do nothing
@@ -383,9 +383,7 @@ function onSignIn(googleUser) {
         window.location.replace("403.html")
        }
   });
-</script>
-
-<script>
+  /*
     var customerapp = angular.module("CustomerApp", []);
 
     customerapp.controller("HomeController", function($scope, $http, $location, $window) {
@@ -401,7 +399,7 @@ function onSignIn(googleUser) {
         };
 
 
-    });
+});*/
 </script>
 </body>
 </html>
