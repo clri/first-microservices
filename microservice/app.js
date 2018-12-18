@@ -41,7 +41,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'bak_public')));
 
 // /*for middleware and multitenancy*/
 //DO NOT COMMENT THIS OUT!!!!!

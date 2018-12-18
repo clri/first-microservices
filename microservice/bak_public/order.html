@@ -4,9 +4,9 @@
   <title>ShopMore</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="order/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="order/bootstrap/js/bootstrap.min.js"></script>
+  <script src="bootstrap/js/bootstrap.min.js"></script>
   <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/5.1/jquery.liveaddress.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
@@ -95,22 +95,23 @@
       </div>
       <div class="modal-body" ng-controller="HomeController">
         <form id="register_form">
-          <div class="form-group">
-            <label for="user_first_name">Email address</label>
-            <input type="text" name="user_first_name" class="form-control" id="user_first_name" placeholder="First Name">
-          </div>
-          <div class="form-group">
-            <label for="user_last_name">Email address</label>
-            <input type="text" name="user_last_name" class="form-control" id="user_last_name" placeholder="Last Name">
-          </div>
-          <div class="form-group">
-            <label for="reg_user_email_address">Email address</label>
-            <input type="email" name="email" class="form-control" id="reg_user_email_address" placeholder="Email">
-          </div>
-          <div class="form-group">
-            <label for="reg_user_password">Password</label>
-            <input type="password" name = "pw" class="form-control" id="reg_user_password" placeholder="Password">
-          </div>
+                <form id="register_form">
+                  <div class="form-group">
+                    <label for="user_first_name">First Name</label>
+                    <input type="text" name="firstName" class="form-control" id="user_first_name" placeholder="First Name">
+                  </div>
+                  <div class="form-group">
+                    <label for="user_last_name">Last Name</label>
+                    <input type="text" name="lastName" class="form-control" id="user_last_name" placeholder="Last Name">
+                  </div>
+                  <div class="form-group">
+                    <label for="reg_user_email_address">Email address</label>
+                    <input type="email" name="email" class="form-control" id="reg_user_email_address" placeholder="Email">
+                  </div>
+                  <div class="form-group">
+                    <label for="reg_user_password">Password</label>
+                    <input type="password" name = "pw" class="form-control" id="reg_user_password" placeholder="Password">
+                  </div>
           <form id = "addressform">
             <label for="newaddress">Address</label>
             <br>
